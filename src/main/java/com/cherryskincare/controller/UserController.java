@@ -3,6 +3,7 @@ package com.cherryskincare.controller;
 import com.cherryskincare.dto.UserRegistrationDTO;
 import com.cherryskincare.model.User;
 import com.cherryskincare.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,13 +18,9 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody UserRegistrationDTO registrationDTO) {
-        try {
-            User user = userService.registerUser(registrationDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body(user);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<?> registerUser(@Valid @RequestBody UserRegistrationDTO registrationDTO) {
+        User user = userService.registerUser(registrationDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
     @GetMapping("/{id}")

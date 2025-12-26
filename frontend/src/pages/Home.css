@@ -1,0 +1,139 @@
+.home-page {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  display: flex;
+  flex-direction: column;
+}
+
+.home-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  flex: 1;
+}
+
+.hero-section {
+  text-align: center;
+  margin: 3rem 0;
+  padding: 3rem 2rem;
+  background: linear-gradient(135deg, #C94A5A 0%, #D16C7C 100%);
+  color: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 16px rgba(201, 74, 90, 0.2);
+}
+
+.hero-section h1 {
+  margin: 0;
+  font-size: 3rem;
+  font-weight: 600;
+  letter-spacing: -1px;
+}
+
+.hero-section p {
+  margin: 1rem 0 0 0;
+  font-size: 1.3rem;
+  opacity: 0.95;
+  font-weight: 300;
+}
+
+.products-section {
+  margin-top: 2rem;
+}
+
+.products-section h2 {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: #333;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.product-card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.product-image {
+  width: 100%;
+  height: 250px;
+  overflow: hidden;
+  background: #f5f5f5;
+}
+
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.product-info {
+  padding: 1.5rem;
+}
+
+.product-info h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.3rem;
+  color: #333;
+}
+
+.product-category {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0.5rem 0;
+  text-transform: capitalize;
+}
+
+.product-price {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #667eea;
+  margin: 1rem 0;
+}
+
+.product-stock {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  background: #4caf50;
+  color: white;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+.product-out-of-stock {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  background: #f44336;
+  color: white;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+.loading, .error, .no-products {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.2rem;
+}
+
+.error {
+  color: #f44336;
+}
+
+.no-products {
+  color: #666;
+}
+

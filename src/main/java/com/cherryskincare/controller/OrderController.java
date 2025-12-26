@@ -4,6 +4,7 @@ import com.cherryskincare.dto.CreateOrderDTO;
 import com.cherryskincare.dto.OrderDTO;
 import com.cherryskincare.model.Order;
 import com.cherryskincare.service.OrderService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,13 +21,9 @@ public class OrderController {
     private OrderService orderService;
 
     @PostMapping("/user/{userId}")
-    public ResponseEntity<OrderDTO> createOrder(@PathVariable Long userId, @RequestBody CreateOrderDTO createOrderDTO) {
-        try {
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(orderService.createOrder(userId, createOrderDTO));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<OrderDTO> createOrder(@PathVariable Long userId, @Valid @RequestBody CreateOrderDTO createOrderDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(orderService.createOrder(userId, createOrderDTO));
     }
 
     @GetMapping("/user/{userId}")

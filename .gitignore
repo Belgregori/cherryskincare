@@ -38,3 +38,10 @@ uploads/
 ### Application Properties (puede contener datos sensibles) ###
 # Descomenta si no quieres commitear application.properties
 # src/main/resources/application.properties
+
+### Frontend (React/Vite) ###
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/.env.local
+frontend/.env.*.local
