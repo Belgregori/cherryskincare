@@ -31,7 +31,12 @@ api.interceptors.response.use(
       // Token expirado o inválido
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      // Si está en una ruta de admin, redirigir al login de admin
+      if (window.location.pathname.startsWith('/admin')) {
+        window.location.href = '/admin/login';
+      } else {
+        window.location.href = '/';
+      }
     }
     return Promise.reject(error);
   }

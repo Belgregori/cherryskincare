@@ -1,14 +1,23 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import CherryLogo from './CherryLogo';
 import ShoppingCart from './ShoppingCart';
 import './Header.css';
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isAuthenticated, user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleLogout = () => {
+    logout();
+    setIsMenuOpen(false);
+    navigate('/');
   };
 
   return (
@@ -50,6 +59,32 @@ function Header() {
                 Contacto
               </Link>
             </li>
+            <li className="menu-divider"></li>
+            {isAuthenticated ? (
+              <>
+                <li className="user-info">
+                  <span className="user-name">👤 {user?.name || user?.email}</span>
+                </li>
+                <li>
+                  <button onClick={handleLogout} className="logout-link">
+                    Cerrar Sesión
+                  </button>
+                </li>
+              </>
+            ) : (
+              <>
+                <li>
+                  <Link to="/login" onClick={() => setIsMenuOpen(false)}>
+                    Iniciar Sesión
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/register" onClick={() => setIsMenuOpen(false)}>
+                    Registrarse
+                  </Link>
+                </li>
+              </>
+            )}
           </ul>
         </nav>
 

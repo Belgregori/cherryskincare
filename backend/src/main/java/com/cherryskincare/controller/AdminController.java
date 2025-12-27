@@ -132,6 +132,7 @@ public class AdminController {
     }
 
     // Clase interna para respuesta de imagen
+    @SuppressWarnings("unused")
     private static class ImageResponse {
         private String imageUrl;
 

@@ -3,7 +3,6 @@ package com.cherryskincare.service;
 import com.cherryskincare.dto.ProductDTO;
 import com.cherryskincare.model.Product;
 import com.cherryskincare.repository.ProductRepository;
-import com.cherryskincare.service.FileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +19,7 @@ public class ProductService {
     private ProductRepository productRepository;
 
     @Autowired
-    private FileStorageService fileStorageService;
+    private com.cherryskincare.service.FileStorageService fileStorageService;
 
     public List<ProductDTO> getAllProducts() {
         return productRepository.findByIsActiveTrue().stream()

@@ -9,11 +9,9 @@ public class UserRegistrationDTO {
     @Size(min = 2, max = 100, message = "El nombre debe tener entre 2 y 100 caracteres")
     private String name;
     
-    @NotBlank(message = "El email es obligatorio")
     @Email(message = "El email debe tener un formato válido")
     private String email;
     
-    @NotBlank(message = "El teléfono es obligatorio")
     private String telefone;
     
     @NotBlank(message = "La contraseña es obligatoria")

@@ -52,6 +52,7 @@ public class ImageController {
     }
 
     // Clase interna para la respuesta
+    @SuppressWarnings("unused")
     private static class ImageUploadResponse {
         private String imageUrl;
 

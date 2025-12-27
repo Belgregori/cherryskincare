@@ -66,6 +66,7 @@ public class ProductController {
         }
     }
 
+    @SuppressWarnings("unused")
     private static class ImageResponse {
         private String imageUrl;
 
