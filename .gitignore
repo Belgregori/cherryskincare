@@ -38,8 +38,16 @@ uploads/
 backend/uploads/
 
 ### Application Properties (puede contener datos sensibles) ###
-# Descomenta si no quieres commitear application.properties
-# src/main/resources/application.properties
+# Archivos de configuración con datos sensibles
+backend/.env
+backend/.env.local
+backend/.env.*.local
+*.env
+.env.local
+.env.*.local
+
+# Application properties con datos sensibles (descomenta si quieres excluirlo)
+# backend/src/main/resources/application.properties
 
 ### Frontend (React/Vite) ###
 frontend/node_modules/
@@ -47,3 +55,9 @@ frontend/dist/
 frontend/.vite/
 frontend/.env.local
 frontend/.env.*.local
+
+### Archivos basura (raíz del proyecto) ###
+src/
+target/
+test-*.ps1
+*.ps1

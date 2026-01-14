@@ -18,7 +18,7 @@ function ProtectedRoute({ children, requireAdmin = false }) {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/admin/login" replace />;
+    return <Navigate to={requireAdmin ? "/admin/login" : "/login"} replace />;
   }
 
   if (requireAdmin && !isAdmin()) {

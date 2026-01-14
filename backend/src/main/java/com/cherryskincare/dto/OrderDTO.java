@@ -1,6 +1,7 @@
 package com.cherryskincare.dto;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class OrderDTO {
@@ -13,6 +14,11 @@ public class OrderDTO {
     private String shippingCity;
     private String shippingPostalCode;
     private String shippingPhone;
+    private String customerName;
+    private Boolean insideRing;
+    private String shippingMethod;
+    private String paymentMethod;
+    private LocalDateTime createdAt;
 
     public OrderDTO() {
     }
@@ -87,6 +93,46 @@ public class OrderDTO {
 
     public void setShippingPhone(String shippingPhone) {
         this.shippingPhone = shippingPhone;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public Boolean getInsideRing() {
+        return insideRing;
+    }
+
+    public void setInsideRing(Boolean insideRing) {
+        this.insideRing = insideRing;
+    }
+
+    public String getShippingMethod() {
+        return shippingMethod;
+    }
+
+    public void setShippingMethod(String shippingMethod) {
+        this.shippingMethod = shippingMethod;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }
 

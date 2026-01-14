@@ -1,6 +1,7 @@
 package com.cherryskincare.service;
 
 import com.cherryskincare.dto.ProductDTO;
+import com.cherryskincare.exception.ProductNotFoundException;
 import com.cherryskincare.model.Product;
 import com.cherryskincare.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,7 @@ public class ProductService {
 
     public ProductDTO getProductById(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> new ProductNotFoundException(id));
         return convertToDTO(product);
     }
 
@@ -53,7 +54,7 @@ public class ProductService {
 
     public ProductDTO updateProduct(Long id, ProductDTO productDTO) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> new ProductNotFoundException(id));
 
         product.setName(productDTO.getName());
         product.setDescription(productDTO.getDescription());
@@ -69,14 +70,14 @@ public class ProductService {
 
     public void deleteProduct(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> new ProductNotFoundException(id));
         product.setIsActive(false);
         productRepository.save(product);
     }
 
     public String uploadProductImage(Long id, MultipartFile file) throws Exception {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> new ProductNotFoundException(id));
 
         // Si ya tiene una imagen, eliminar la anterior
         if (product.getImageUrl() != null && !product.getImageUrl().isEmpty()) {

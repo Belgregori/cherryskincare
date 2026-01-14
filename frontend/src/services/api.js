@@ -1,6 +1,10 @@
 import axios from 'axios';
 
+// URL base del API - configurable mediante variable de entorno
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+
+// URL base para imágenes
+export const IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_BASE_URL || 'http://localhost:8080';
 
 const api = axios.create({
   baseURL: API_BASE_URL,

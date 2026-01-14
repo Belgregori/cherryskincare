@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import CherryLogo from '../components/CherryLogo';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 import './AdminLogin.css';
 
 function AdminLogin() {
@@ -38,9 +39,9 @@ function AdminLogin() {
 
   return (
     <div className="admin-login-page">
+      <Header />
       <div className="admin-login-container">
         <div className="admin-login-header">
-          <CherryLogo />
           <h1>Panel de Administración</h1>
           <p>Ingresa tus credenciales de administrador</p>
         </div>
@@ -77,6 +78,7 @@ function AdminLogin() {
           </button>
         </form>
       </div>
+      <Footer />
     </div>
   );
 }

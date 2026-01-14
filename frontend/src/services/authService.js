@@ -43,6 +43,16 @@ export const authService = {
 
   isAuthenticated() {
     return !!this.getToken();
+  },
+
+  async updateUser(userId, userData) {
+    const response = await api.put(`/users/${userId}`, userData);
+    return response.data;
+  },
+
+  async changePassword(userId, passwordData) {
+    const response = await api.put(`/users/${userId}/password`, passwordData);
+    return response.data;
   }
 };
 

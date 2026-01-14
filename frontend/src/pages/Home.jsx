@@ -1,10 +1,16 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { productService } from '../services/productService';
+import { useCart } from '../context/CartContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import ImageCarousel from '../components/ImageCarousel';
+import { IMAGE_BASE_URL } from '../services/api';
 import './Home.css';
 
 function Home() {
+  const navigate = useNavigate();
+  const { addToCart } = useCart();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -63,6 +69,17 @@ function Home() {
           <p>Tu tienda de productos de cuidado de la piel</p>
         </section>
 
+        {/* Carrusel de imágenes */}
+        <section className="carousel-section">
+          <ImageCarousel 
+            images={products
+              .filter(p => p.imageUrl)
+              .slice(0, 5)
+              .map(p => `${IMAGE_BASE_URL}${p.imageUrl}`)
+            }
+          />
+        </section>
+
         <section className="products-section">
         <h2>Nuestros Productos</h2>
         
@@ -71,11 +88,14 @@ function Home() {
         ) : (
           <div className="products-grid">
             {products.map((product) => (
-              <div key={product.id} className="product-card">
+              <div 
+                key={product.id} 
+                className="product-card"
+              >
                 {product.imageUrl && (
-                  <div className="product-image">
+                  <div className="product-image" onClick={() => navigate(`/product/${product.id}`)}>
                     <img 
-                      src={`http://localhost:8080${product.imageUrl}`} 
+                      src={`${IMAGE_BASE_URL}${product.imageUrl}`} 
                       alt={product.name}
                       onError={(e) => {
                         e.target.src = 'https://via.placeholder.com/300x300?text=Sin+Imagen';
@@ -83,7 +103,7 @@ function Home() {
                     />
                   </div>
                 )}
-                <div className="product-info">
+                <div className="product-info" onClick={() => navigate(`/product/${product.id}`)}>
                   <h3>{product.name}</h3>
                   <p className="product-category">{product.category}</p>
                   <p className="product-price">${product.price?.toFixed(2)}</p>
@@ -93,6 +113,19 @@ function Home() {
                     <span className="product-out-of-stock">Agotado</span>
                   )}
                 </div>
+                {product.stockQuantity > 0 && (
+                  <button
+                    className="add-to-cart-quick-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      addToCart(product, 1);
+                    }}
+                    aria-label="Agregar al carrito"
+                    title="Agregar al carrito"
+                  >
+                    +
+                  </button>
+                )}
               </div>
             ))}
           </div>

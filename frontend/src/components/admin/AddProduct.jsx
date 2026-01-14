@@ -2,7 +2,7 @@ import { useState } from 'react';
 import api from '../../services/api';
 import './AddProduct.css';
 
-function AddProduct() {
+function AddProduct({ onSuccess }) {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -93,6 +93,13 @@ function AddProduct() {
       });
       setPreview(null);
       e.target.reset();
+
+      // Si hay callback onSuccess, llamarlo después de un breve delay
+      if (onSuccess) {
+        setTimeout(() => {
+          onSuccess();
+        }, 1500);
+      }
 
     } catch (error) {
       setMessage({

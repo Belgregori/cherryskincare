@@ -41,6 +41,18 @@ public class Order {
     @Column(name = "shipping_phone")
     private String shippingPhone;
 
+    @Column(name = "customer_name")
+    private String customerName;
+
+    @Column(name = "inside_ring")
+    private Boolean insideRing;
+
+    @Column(name = "shipping_method")
+    private String shippingMethod; // 'gratis', 'uber', 'sabado', 'retiro'
+
+    @Column(name = "payment_method")
+    private String paymentMethod; // 'WHATSAPP'
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -145,6 +157,38 @@ public class Order {
 
     public void setShippingPhone(String shippingPhone) {
         this.shippingPhone = shippingPhone;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public Boolean getInsideRing() {
+        return insideRing;
+    }
+
+    public void setInsideRing(Boolean insideRing) {
+        this.insideRing = insideRing;
+    }
+
+    public String getShippingMethod() {
+        return shippingMethod;
+    }
+
+    public void setShippingMethod(String shippingMethod) {
+        this.shippingMethod = shippingMethod;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
     }
 
     public LocalDateTime getCreatedAt() {

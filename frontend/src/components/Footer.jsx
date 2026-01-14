@@ -1,8 +1,8 @@
 import './Footer.css';
 
 function Footer() {
-  const whatsappNumber = '5491234567890'; // TODO: Reemplazar con tu número real
-  const instagramUrl = 'https://www.instagram.com/cherryskincare'; // TODO: Reemplazar con tu Instagram real
+  const whatsappNumber = '5493515311969'; // Formato: código país (54) + 9 + número sin 0 inicial
+  const instagramUrl = 'https://www.instagram.com/cherryskincare';
 
   const handleWhatsApp = () => {
     const message = encodeURIComponent('Hola! Me interesa conocer más sobre Cherry Skincare 🍒');

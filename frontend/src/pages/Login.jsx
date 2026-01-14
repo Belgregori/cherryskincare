@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import CherryLogo from '../components/CherryLogo';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 import './Login.css';
 
 function Login() {
@@ -40,9 +41,9 @@ function Login() {
 
   return (
     <div className="login-page">
+      <Header />
       <div className="login-container">
         <div className="login-header">
-          <CherryLogo />
           <h1>Iniciar Sesión</h1>
           <p>Ingresa tus credenciales</p>
         </div>
@@ -83,6 +84,7 @@ function Login() {
           </div>
         </form>
       </div>
+      <Footer />
     </div>
   );
 }

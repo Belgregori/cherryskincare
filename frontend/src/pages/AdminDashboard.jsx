@@ -2,16 +2,40 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import AddProduct from '../components/admin/AddProduct';
+import ProductList from '../components/admin/ProductList';
+import EditProduct from '../components/admin/EditProduct';
+import OrderList from '../components/admin/OrderList';
+import UserList from '../components/admin/UserList';
 import './AdminDashboard.css';
 
 function AdminDashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [activeSection, setActiveSection] = useState('add-product');
+  const [activeSection, setActiveSection] = useState('products');
+  const [editingProductId, setEditingProductId] = useState(null);
+  const [productsRefreshKey, setProductsRefreshKey] = useState(0);
 
   const handleLogout = () => {
-    logout();
-    navigate('/admin/login');
+    if (window.confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+      logout();
+      navigate('/admin/login');
+    }
+  };
+
+  const handleEditProduct = (product) => {
+    setEditingProductId(product.id);
+    setActiveSection('edit-product');
+  };
+
+  const handleCancelEdit = () => {
+    setEditingProductId(null);
+    setActiveSection('products');
+  };
+
+  const handleEditSuccess = () => {
+    setEditingProductId(null);
+    setActiveSection('products');
+    setProductsRefreshKey(prev => prev + 1); // Forzar recarga de la lista
   };
 
   return (
@@ -25,13 +49,19 @@ function AdminDashboard() {
         <nav className="sidebar-nav">
           <button
             className={`nav-item ${activeSection === 'add-product' ? 'active' : ''}`}
-            onClick={() => setActiveSection('add-product')}
+            onClick={() => {
+              setActiveSection('add-product');
+              setEditingProductId(null);
+            }}
           >
             ➕ Agregar Producto
           </button>
           <button
             className={`nav-item ${activeSection === 'products' ? 'active' : ''}`}
-            onClick={() => setActiveSection('products')}
+            onClick={() => {
+              setActiveSection('products');
+              setEditingProductId(null);
+            }}
           >
             📦 Productos
           </button>
@@ -56,10 +86,27 @@ function AdminDashboard() {
 
       <main className="admin-main">
         <div className="admin-content">
-          {activeSection === 'add-product' && <AddProduct />}
-          {activeSection === 'products' && <div>Gestión de Productos (próximamente)</div>}
-          {activeSection === 'orders' && <div>Gestión de Órdenes (próximamente)</div>}
-          {activeSection === 'users' && <div>Gestión de Usuarios (próximamente)</div>}
+          {activeSection === 'add-product' && (
+            <AddProduct onSuccess={() => {
+              setActiveSection('products');
+              setProductsRefreshKey(prev => prev + 1); // Forzar recarga de la lista
+            }} />
+          )}
+          {activeSection === 'products' && (
+            <ProductList 
+              onEditProduct={handleEditProduct}
+              refreshKey={productsRefreshKey}
+            />
+          )}
+          {activeSection === 'edit-product' && editingProductId && (
+            <EditProduct 
+              productId={editingProductId}
+              onCancel={handleCancelEdit}
+              onSuccess={handleEditSuccess}
+            />
+          )}
+          {activeSection === 'orders' && <OrderList />}
+          {activeSection === 'users' && <UserList />}
         </div>
       </main>
     </div>

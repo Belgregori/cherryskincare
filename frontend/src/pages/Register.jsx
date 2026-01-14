@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
-import CherryLogo from '../components/CherryLogo';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 import './Register.css';
 
 function Register() {
@@ -72,9 +73,9 @@ function Register() {
 
   return (
     <div className="register-page">
+      <Header />
       <div className="register-container">
         <div className="register-header">
-          <CherryLogo />
           <h1>Crear Cuenta</h1>
           <p>Registrate para comenzar</p>
         </div>
@@ -159,6 +160,7 @@ function Register() {
           </div>
         </form>
       </div>
+      <Footer />
     </div>
   );
 }

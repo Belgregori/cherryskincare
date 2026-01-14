@@ -46,3 +46,4 @@ El frontend está configurado para conectarse al backend en `http://localhost:80
 - **Axios** - Cliente HTTP para peticiones a la API
 - **Vite** - Build tool y dev server
 
+

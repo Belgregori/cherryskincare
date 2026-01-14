@@ -4,12 +4,18 @@ import com.cherryskincare.dto.AdminOrderDTO;
 import com.cherryskincare.dto.AdminProductDTO;
 import com.cherryskincare.dto.AdminUserDTO;
 import com.cherryskincare.dto.OrderItemDTO;
+import com.cherryskincare.exception.OrderNotFoundException;
+import com.cherryskincare.exception.ProductNotFoundException;
+import com.cherryskincare.exception.UserNotFoundException;
+import com.cherryskincare.exception.ValidationException;
 import com.cherryskincare.model.Order;
 import com.cherryskincare.model.Product;
 import com.cherryskincare.model.User;
 import com.cherryskincare.repository.OrderRepository;
 import com.cherryskincare.repository.ProductRepository;
 import com.cherryskincare.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +26,8 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class AdminService {
+
+    private static final Logger logger = LoggerFactory.getLogger(AdminService.class);
 
     @Autowired
     private ProductRepository productRepository;
@@ -40,43 +48,97 @@ public class AdminService {
 
     public AdminProductDTO getProductById(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> new ProductNotFoundException(id));
         return convertProductToDTO(product);
     }
 
     public AdminProductDTO createProduct(AdminProductDTO productDTO) {
+        logger.info("Creando nuevo producto: {}", productDTO.getName());
+        
+        // Validaciones
+        if (productDTO.getName() == null || productDTO.getName().trim().isEmpty()) {
+            logger.warn("Intento de crear producto sin nombre");
+            throw new ValidationException("El nombre del producto es obligatorio");
+        }
+        
+        if (productDTO.getPrice() == null || productDTO.getPrice().compareTo(java.math.BigDecimal.ZERO) <= 0) {
+            logger.warn("Intento de crear producto con precio inválido: {}", productDTO.getPrice());
+            throw new ValidationException("El precio debe ser mayor a cero");
+        }
+
         Product product = new Product();
-        product.setName(productDTO.getName());
-        product.setDescription(productDTO.getDescription());
+        product.setName(productDTO.getName().trim());
+        product.setDescription(productDTO.getDescription() != null ? productDTO.getDescription().trim() : null);
         product.setPrice(productDTO.getPrice());
         product.setImageUrl(productDTO.getImageUrl());
-        product.setCategory(productDTO.getCategory());
+        product.setCategory(productDTO.getCategory() != null ? productDTO.getCategory().trim() : null);
         product.setStockQuantity(productDTO.getStockQuantity() != null ? productDTO.getStockQuantity() : 0);
         product.setIsActive(productDTO.getIsActive() != null ? productDTO.getIsActive() : true);
 
         product = productRepository.save(product);
+        logger.info("Producto creado exitosamente - ID: {}, Nombre: {}", product.getId(), product.getName());
+        
         return convertProductToDTO(product);
     }
 
     public AdminProductDTO updateProduct(Long id, AdminProductDTO productDTO) {
+        logger.info("Actualizando producto ID: {}", id);
+        
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> {
+                    logger.error("Producto no encontrado al actualizar: {}", id);
+                    return new ProductNotFoundException(id);
+                });
 
-        product.setName(productDTO.getName());
-        product.setDescription(productDTO.getDescription());
-        product.setPrice(productDTO.getPrice());
-        product.setImageUrl(productDTO.getImageUrl());
-        product.setCategory(productDTO.getCategory());
-        product.setStockQuantity(productDTO.getStockQuantity());
-        product.setIsActive(productDTO.getIsActive());
+        // Validaciones
+        if (productDTO.getName() != null && productDTO.getName().trim().isEmpty()) {
+            logger.warn("Intento de actualizar producto con nombre vacío");
+            throw new ValidationException("El nombre del producto no puede estar vacío");
+        }
+        
+        if (productDTO.getPrice() != null && productDTO.getPrice().compareTo(java.math.BigDecimal.ZERO) <= 0) {
+            logger.warn("Intento de actualizar producto con precio inválido: {}", productDTO.getPrice());
+            throw new ValidationException("El precio debe ser mayor a cero");
+        }
+
+        if (productDTO.getName() != null) {
+            product.setName(productDTO.getName().trim());
+        }
+        if (productDTO.getDescription() != null) {
+            product.setDescription(productDTO.getDescription().trim());
+        }
+        if (productDTO.getPrice() != null) {
+            product.setPrice(productDTO.getPrice());
+        }
+        if (productDTO.getImageUrl() != null) {
+            product.setImageUrl(productDTO.getImageUrl());
+        }
+        if (productDTO.getCategory() != null) {
+            product.setCategory(productDTO.getCategory().trim());
+        }
+        if (productDTO.getStockQuantity() != null) {
+            product.setStockQuantity(productDTO.getStockQuantity());
+        }
+        if (productDTO.getIsActive() != null) {
+            product.setIsActive(productDTO.getIsActive());
+        }
 
         product = productRepository.save(product);
+        logger.info("Producto actualizado exitosamente - ID: {}, Nombre: {}", product.getId(), product.getName());
+        
         return convertProductToDTO(product);
     }
 
     public void deleteProduct(Long id) {
+        logger.info("Eliminando producto ID: {}", id);
+        
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> {
+                    logger.error("Producto no encontrado al eliminar: {}", id);
+                    return new RuntimeException("Producto no encontrado");
+                });
+        
+        logger.info("Producto eliminado - ID: {}, Nombre: {}", product.getId(), product.getName());
         productRepository.delete(product);
     }
 
@@ -90,13 +152,13 @@ public class AdminService {
 
     public AdminOrderDTO getOrderById(Long id) {
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
+                .orElseThrow(() -> new OrderNotFoundException(id));
         return convertOrderToDTO(order);
     }
 
     public AdminOrderDTO updateOrderStatus(Long id, Order.OrderStatus status) {
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
+                .orElseThrow(() -> new OrderNotFoundException(id));
         order.setStatus(status);
         order = orderRepository.save(order);
         return convertOrderToDTO(order);
@@ -112,7 +174,7 @@ public class AdminService {
 
     public AdminUserDTO getUserById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new UserNotFoundException(id));
         return convertUserToDTO(user);
     }
 
@@ -144,6 +206,10 @@ public class AdminService {
         dto.setShippingCity(order.getShippingCity());
         dto.setShippingPostalCode(order.getShippingPostalCode());
         dto.setShippingPhone(order.getShippingPhone());
+        dto.setCustomerName(order.getCustomerName());
+        dto.setInsideRing(order.getInsideRing());
+        dto.setShippingMethod(order.getShippingMethod());
+        dto.setPaymentMethod(order.getPaymentMethod());
         dto.setCreatedAt(order.getCreatedAt());
         dto.setUpdatedAt(order.getUpdatedAt());
 

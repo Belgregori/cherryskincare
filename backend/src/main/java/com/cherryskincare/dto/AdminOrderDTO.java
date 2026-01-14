@@ -17,6 +17,10 @@ public class AdminOrderDTO {
     private String shippingCity;
     private String shippingPostalCode;
     private String shippingPhone;
+    private String customerName;
+    private Boolean insideRing;
+    private String shippingMethod;
+    private String paymentMethod;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -117,6 +121,38 @@ public class AdminOrderDTO {
 
     public void setShippingPhone(String shippingPhone) {
         this.shippingPhone = shippingPhone;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public Boolean getInsideRing() {
+        return insideRing;
+    }
+
+    public void setInsideRing(Boolean insideRing) {
+        this.insideRing = insideRing;
+    }
+
+    public String getShippingMethod() {
+        return shippingMethod;
+    }
+
+    public void setShippingMethod(String shippingMethod) {
+        this.shippingMethod = shippingMethod;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
     }
 
     public LocalDateTime getCreatedAt() {

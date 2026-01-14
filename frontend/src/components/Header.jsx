@@ -15,9 +15,11 @@ function Header() {
   };
 
   const handleLogout = () => {
-    logout();
-    setIsMenuOpen(false);
-    navigate('/');
+    if (window.confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+      logout();
+      setIsMenuOpen(false);
+      navigate('/');
+    }
   };
 
   return (
@@ -50,20 +52,47 @@ function Header() {
               </Link>
             </li>
             <li>
-              <Link to="/about" onClick={() => setIsMenuOpen(false)}>
-                Sobre Nosotros
+              <Link to="/categories" onClick={() => setIsMenuOpen(false)}>
+                Categorías
               </Link>
             </li>
             <li>
-              <Link to="/contact" onClick={() => setIsMenuOpen(false)}>
-                Contacto
+              <Link to="/how-to-use" onClick={() => setIsMenuOpen(false)}>
+                ¿Cómo se usa?
+              </Link>
+            </li>
+            {!isAuthenticated && (
+              <li>
+                <Link to="/login" onClick={() => setIsMenuOpen(false)}>
+                  Inicia Sesión
+                </Link>
+              </li>
+            )}
+            <li>
+              <Link to="/about-us" onClick={() => setIsMenuOpen(false)}>
+                Quiero una página como esta!
+              </Link>
+            </li>
+            <li>
+              <Link to="/payment-methods" onClick={() => setIsMenuOpen(false)}>
+                Medios de Pago
+              </Link>
+            </li>
+            <li>
+              <Link to="/shipping" onClick={() => setIsMenuOpen(false)}>
+                Envíos
               </Link>
             </li>
             <li className="menu-divider"></li>
             {isAuthenticated ? (
               <>
+                <li>
+                  <Link to="/profile" onClick={() => setIsMenuOpen(false)}>
+                    👤 Mi Perfil
+                  </Link>
+                </li>
                 <li className="user-info">
-                  <span className="user-name">👤 {user?.name || user?.email}</span>
+                  <span className="user-name">{user?.name || user?.email}</span>
                 </li>
                 <li>
                   <button onClick={handleLogout} className="logout-link">
@@ -72,18 +101,11 @@ function Header() {
                 </li>
               </>
             ) : (
-              <>
-                <li>
-                  <Link to="/login" onClick={() => setIsMenuOpen(false)}>
-                    Iniciar Sesión
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/register" onClick={() => setIsMenuOpen(false)}>
-                    Registrarse
-                  </Link>
-                </li>
-              </>
+              <li>
+                <Link to="/register" onClick={() => setIsMenuOpen(false)}>
+                  Registrarse
+                </Link>
+              </li>
             )}
           </ul>
         </nav>
