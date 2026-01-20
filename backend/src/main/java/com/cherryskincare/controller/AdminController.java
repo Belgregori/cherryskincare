@@ -5,6 +5,13 @@ import com.cherryskincare.dto.AdminProductDTO;
 import com.cherryskincare.dto.AdminUserDTO;
 import com.cherryskincare.model.Order;
 import com.cherryskincare.service.AdminService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +22,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin")
+@Tag(name = "Administración", description = "Endpoints para gestión administrativa. Requiere rol ADMIN.")
+@SecurityRequirement(name = "bearerAuth")
 public class AdminController {
 
     @Autowired
@@ -25,6 +34,14 @@ public class AdminController {
 
     // ========== GESTIÓN DE PRODUCTOS ==========
 
+    @Operation(
+            summary = "Obtener todos los productos (Admin)",
+            description = "Retorna todos los productos incluyendo los inactivos. Solo para administradores."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Lista de productos obtenida exitosamente"
+    )
     @GetMapping("/products")
     public ResponseEntity<List<AdminProductDTO>> getAllProducts() {
         return ResponseEntity.ok(adminService.getAllProducts());
@@ -39,6 +56,22 @@ public class AdminController {
         }
     }
 
+    @Operation(
+            summary = "Crear producto (Admin)",
+            description = "Crea un nuevo producto en el catálogo. Solo para administradores."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Producto creado exitosamente",
+                    content = @Content(schema = @Schema(implementation = AdminProductDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Datos inválidos",
+                    content = @Content
+            )
+    })
     @PostMapping("/products")
     public ResponseEntity<AdminProductDTO> createProduct(@RequestBody AdminProductDTO productDTO) {
         try {
@@ -86,6 +119,14 @@ public class AdminController {
 
     // ========== GESTIÓN DE ÓRDENES ==========
 
+    @Operation(
+            summary = "Obtener todas las órdenes (Admin)",
+            description = "Retorna todas las órdenes del sistema. Solo para administradores."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Lista de órdenes obtenida exitosamente"
+    )
     @GetMapping("/orders")
     public ResponseEntity<List<AdminOrderDTO>> getAllOrders() {
         return ResponseEntity.ok(adminService.getAllOrders());
@@ -116,6 +157,14 @@ public class AdminController {
 
     // ========== GESTIÓN DE USUARIOS ==========
 
+    @Operation(
+            summary = "Obtener todos los usuarios (Admin)",
+            description = "Retorna todos los usuarios del sistema. Solo para administradores."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Lista de usuarios obtenida exitosamente"
+    )
     @GetMapping("/users")
     public ResponseEntity<List<AdminUserDTO>> getAllUsers() {
         return ResponseEntity.ok(adminService.getAllUsers());

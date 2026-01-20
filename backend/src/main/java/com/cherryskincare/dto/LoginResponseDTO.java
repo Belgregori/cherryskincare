@@ -1,10 +1,22 @@
 package com.cherryskincare.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "Respuesta de autenticación exitosa")
 public class LoginResponseDTO {
+    @Schema(description = "Token JWT para autenticación en requests posteriores", example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
     private String token;
+    
+    @Schema(description = "Email del usuario autenticado", example = "usuario@example.com")
     private String email;
+    
+    @Schema(description = "Nombre del usuario", example = "Juan Pérez")
     private String name;
+    
+    @Schema(description = "Rol del usuario", example = "USER", allowableValues = {"USER", "ADMIN"})
     private String role;
+    
+    @Schema(description = "ID del usuario", example = "1")
     private Long userId;
 
     public LoginResponseDTO() {

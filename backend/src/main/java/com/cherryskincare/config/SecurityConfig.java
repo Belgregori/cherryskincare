@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.http.HttpMethod;
 
 /**
  * Configuración de seguridad de la aplicación.
@@ -58,13 +59,24 @@ public class SecurityConfig {
             // - El token JWT debe incluirse explícitamente en cada request
             // - El navegador no envía automáticamente el token (como haría con cookies)
             .csrf(csrf -> csrf.disable())
+
+            // Headers de seguridad básicos para APIs
+            .headers(headers -> headers
+                .contentTypeOptions(contentType -> {})
+                .frameOptions(frame -> frame.deny())
+                .referrerPolicy(referrer -> referrer.policy(org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.NO_REFERRER))
+                .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"))
+            )
             
             .authorizeHttpRequests(auth -> auth
                 // Endpoints públicos (no requieren autenticación)
                 .requestMatchers("/api/auth/login", "/api/auth/verify").permitAll()
                 .requestMatchers("/api/products/**").permitAll()
-                .requestMatchers("/api/images/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/images/**").permitAll()
+                .requestMatchers("/api/images/upload").hasRole("ADMIN")
                 .requestMatchers("/api/users/register").permitAll()
+                // Swagger UI y documentación OpenAPI
+                .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/api-docs/**", "/v3/api-docs/**").permitAll()
                 
                 // Endpoints de admin - requieren rol ADMIN
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")

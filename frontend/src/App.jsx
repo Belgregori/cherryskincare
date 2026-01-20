@@ -24,10 +24,10 @@ import './App.css';
 
 function App() {
   return (
-    <ErrorBoundary>
-      <AuthProvider>
-        <CartProvider>
-          <Router>
+    <AuthProvider>
+      <CartProvider>
+        <Router>
+          <ErrorBoundary>
             <div className="App">
               <Routes>
               <Route path="/" element={<Home />} />
@@ -63,10 +63,10 @@ function App() {
               />
               </Routes>
             </div>
-          </Router>
-        </CartProvider>
-      </AuthProvider>
-    </ErrorBoundary>
+          </ErrorBoundary>
+        </Router>
+      </CartProvider>
+    </AuthProvider>
   );
 }
 

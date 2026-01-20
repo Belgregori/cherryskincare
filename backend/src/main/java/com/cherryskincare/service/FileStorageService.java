@@ -62,7 +62,17 @@ public class FileStorageService {
     }
 
     public Path loadFile(String filename) {
-        return Paths.get(uploadDir).resolve(filename);
+        if (filename == null || filename.trim().isEmpty()) {
+            throw new IllegalArgumentException("Nombre de archivo inválido");
+        }
+
+        Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
+        Path filePath = uploadPath.resolve(filename).normalize();
+        if (!filePath.startsWith(uploadPath)) {
+            throw new IllegalArgumentException("Ruta de archivo inválida");
+        }
+
+        return filePath;
     }
 }
 
