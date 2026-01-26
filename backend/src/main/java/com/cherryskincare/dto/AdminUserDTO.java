@@ -4,9 +4,9 @@ public class AdminUserDTO {
     private Long id;
     private String name;
     private String email;
-    private String telefone;
+    private String phone;
     private String role;
-    private Integer orderCount; // Número de órdenes del usuario
+    private Integer orderCount; // Number of orders for the user
 
     public AdminUserDTO() {
     }
@@ -35,12 +35,12 @@ public class AdminUserDTO {
         this.email = email;
     }
 
-    public String getTelefone() {
-        return telefone;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setTelefone(String telefone) {
-        this.telefone = telefone;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getRole() {

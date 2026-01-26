@@ -1,5 +1,6 @@
 package com.cherryskincare.controller;
 
+import com.cherryskincare.dto.PageResponseDTO;
 import com.cherryskincare.dto.ProductDTO;
 import com.cherryskincare.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,15 +27,35 @@ public class ProductController {
 
     @Operation(
             summary = "Obtener todos los productos activos",
-            description = "Retorna una lista de todos los productos que están activos en el catálogo"
+            description = "Retorna una lista de todos los productos que están activos en el catálogo. Soporta paginación opcional."
     )
     @ApiResponse(
             responseCode = "200",
             description = "Lista de productos obtenida exitosamente"
     )
     @GetMapping
-    public ResponseEntity<List<ProductDTO>> getAllProducts() {
-        return ResponseEntity.ok(productService.getAllProducts());
+    public ResponseEntity<?> getAllProducts(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false, defaultValue = "id") String sortBy,
+            @RequestParam(required = false, defaultValue = "asc") String sortDir) {
+        
+        // Si no se proporcionan parámetros de paginación, retornar lista completa (compatibilidad hacia atrás)
+        if (page == null && size == null) {
+            return ResponseEntity.ok(productService.getAllProducts());
+        }
+        
+        // Valores por defecto para paginación
+        int pageNum = page != null ? page : 0;
+        int pageSize = size != null ? size : 20;
+        
+        // Validar tamaño máximo
+        if (pageSize > 100) {
+            pageSize = 100;
+        }
+        
+        PageResponseDTO<ProductDTO> response = productService.getAllProducts(pageNum, pageSize, sortBy, sortDir);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(
@@ -64,28 +85,66 @@ public class ProductController {
 
     @Operation(
             summary = "Obtener productos por categoría",
-            description = "Retorna una lista de productos activos filtrados por categoría"
+            description = "Retorna una lista de productos activos filtrados por categoría. Soporta paginación opcional."
     )
     @ApiResponse(
             responseCode = "200",
             description = "Lista de productos de la categoría obtenida exitosamente"
     )
     @GetMapping("/category/{category}")
-    public ResponseEntity<List<ProductDTO>> getProductsByCategory(@PathVariable String category) {
-        return ResponseEntity.ok(productService.getProductsByCategory(category));
+    public ResponseEntity<?> getProductsByCategory(
+            @PathVariable String category,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false, defaultValue = "id") String sortBy,
+            @RequestParam(required = false, defaultValue = "asc") String sortDir) {
+        
+        // Si no se proporcionan parámetros de paginación, retornar lista completa
+        if (page == null && size == null) {
+            return ResponseEntity.ok(productService.getProductsByCategory(category));
+        }
+        
+        int pageNum = page != null ? page : 0;
+        int pageSize = size != null ? size : 20;
+        
+        if (pageSize > 100) {
+            pageSize = 100;
+        }
+        
+        PageResponseDTO<ProductDTO> response = productService.getProductsByCategory(category, pageNum, pageSize, sortBy, sortDir);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(
             summary = "Buscar productos",
-            description = "Busca productos por nombre (búsqueda case-insensitive)"
+            description = "Busca productos por nombre (búsqueda case-insensitive). Soporta paginación opcional."
     )
     @ApiResponse(
             responseCode = "200",
             description = "Resultados de búsqueda obtenidos exitosamente"
     )
     @GetMapping("/search")
-    public ResponseEntity<List<ProductDTO>> searchProducts(@RequestParam String q) {
-        return ResponseEntity.ok(productService.searchProducts(q));
+    public ResponseEntity<?> searchProducts(
+            @RequestParam String q,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false, defaultValue = "id") String sortBy,
+            @RequestParam(required = false, defaultValue = "asc") String sortDir) {
+        
+        // Si no se proporcionan parámetros de paginación, retornar lista completa
+        if (page == null && size == null) {
+            return ResponseEntity.ok(productService.searchProducts(q));
+        }
+        
+        int pageNum = page != null ? page : 0;
+        int pageSize = size != null ? size : 20;
+        
+        if (pageSize > 100) {
+            pageSize = 100;
+        }
+        
+        PageResponseDTO<ProductDTO> response = productService.searchProducts(q, pageNum, pageSize, sortBy, sortDir);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(

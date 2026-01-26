@@ -66,17 +66,27 @@ public class SecurityConfig {
                 .frameOptions(frame -> frame.deny())
                 .referrerPolicy(referrer -> referrer.policy(org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.NO_REFERRER))
                 .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"))
+                // HSTS (HTTP Strict Transport Security) - Solo en producción con HTTPS
+                .httpStrictTransportSecurity(hsts -> hsts
+                    .maxAgeInSeconds(31536000) // 1 año
+                    .includeSubDomains(true) // Incluir subdominios
+                )
             )
             
             .authorizeHttpRequests(auth -> auth
                 // Endpoints públicos (no requieren autenticación)
-                .requestMatchers("/api/auth/login", "/api/auth/verify").permitAll()
+                .requestMatchers("/api/auth/login", "/api/auth/verify", "/api/auth/refresh", 
+                                 "/api/auth/forgot-password", "/api/auth/reset-password").permitAll()
                 .requestMatchers("/api/products/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/images/**").permitAll()
                 .requestMatchers("/api/images/upload").hasRole("ADMIN")
                 .requestMatchers("/api/users/register").permitAll()
                 // Swagger UI y documentación OpenAPI
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/api-docs/**", "/v3/api-docs/**").permitAll()
+                
+                // Actuator endpoints (health checks públicos, otros requieren autenticación)
+                .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                .requestMatchers("/actuator/**").hasRole("ADMIN")
                 
                 // Endpoints de admin - requieren rol ADMIN
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")

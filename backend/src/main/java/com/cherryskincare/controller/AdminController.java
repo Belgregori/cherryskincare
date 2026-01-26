@@ -43,8 +43,21 @@ public class AdminController {
             description = "Lista de productos obtenida exitosamente"
     )
     @GetMapping("/products")
-    public ResponseEntity<List<AdminProductDTO>> getAllProducts() {
-        return ResponseEntity.ok(adminService.getAllProducts());
+    public ResponseEntity<?> getAllProducts(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false, defaultValue = "id") String sortBy,
+            @RequestParam(required = false, defaultValue = "asc") String sortDir) {
+        
+        if (page == null && size == null) {
+            return ResponseEntity.ok(adminService.getAllProducts());
+        }
+        
+        int pageNum = page != null ? page : 0;
+        int pageSize = size != null ? size : 20;
+        if (pageSize > 100) pageSize = 100;
+        
+        return ResponseEntity.ok(adminService.getAllProducts(pageNum, pageSize, sortBy, sortDir));
     }
 
     @GetMapping("/products/{id}")
@@ -128,8 +141,21 @@ public class AdminController {
             description = "Lista de órdenes obtenida exitosamente"
     )
     @GetMapping("/orders")
-    public ResponseEntity<List<AdminOrderDTO>> getAllOrders() {
-        return ResponseEntity.ok(adminService.getAllOrders());
+    public ResponseEntity<?> getAllOrders(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false, defaultValue = "id") String sortBy,
+            @RequestParam(required = false, defaultValue = "desc") String sortDir) {
+        
+        if (page == null && size == null) {
+            return ResponseEntity.ok(adminService.getAllOrders());
+        }
+        
+        int pageNum = page != null ? page : 0;
+        int pageSize = size != null ? size : 20;
+        if (pageSize > 100) pageSize = 100;
+        
+        return ResponseEntity.ok(adminService.getAllOrders(pageNum, pageSize, sortBy, sortDir));
     }
 
     @GetMapping("/orders/{id}")
@@ -166,8 +192,21 @@ public class AdminController {
             description = "Lista de usuarios obtenida exitosamente"
     )
     @GetMapping("/users")
-    public ResponseEntity<List<AdminUserDTO>> getAllUsers() {
-        return ResponseEntity.ok(adminService.getAllUsers());
+    public ResponseEntity<?> getAllUsers(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false, defaultValue = "id") String sortBy,
+            @RequestParam(required = false, defaultValue = "asc") String sortDir) {
+        
+        if (page == null && size == null) {
+            return ResponseEntity.ok(adminService.getAllUsers());
+        }
+        
+        int pageNum = page != null ? page : 0;
+        int pageSize = size != null ? size : 20;
+        if (pageSize > 100) pageSize = 100;
+        
+        return ResponseEntity.ok(adminService.getAllUsers(pageNum, pageSize, sortBy, sortDir));
     }
 
     @GetMapping("/users/{id}")

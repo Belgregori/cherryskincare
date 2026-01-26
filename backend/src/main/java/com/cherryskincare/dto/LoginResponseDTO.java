@@ -18,6 +18,9 @@ public class LoginResponseDTO {
     
     @Schema(description = "ID del usuario", example = "1")
     private Long userId;
+    
+    @Schema(description = "Refresh token para renovar el access token sin necesidad de re-login", example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
+    private String refreshToken;
 
     public LoginResponseDTO() {
     }
@@ -60,6 +63,14 @@ public class LoginResponseDTO {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 }
 

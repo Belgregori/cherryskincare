@@ -37,10 +37,14 @@ public class Product {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @Version
+    @Column(name = "version")
+    private Long version;
+
     public Product() {
     }
 
-    public Product(Long id, String name, String description, BigDecimal price, String imageUrl, String category, Integer stockQuantity, Boolean isActive, LocalDateTime createdAt) {
+    public Product(Long id, String name, String description, BigDecimal price, String imageUrl, String category, Integer stockQuantity, Boolean isActive, LocalDateTime createdAt, Long version) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -50,6 +54,7 @@ public class Product {
         this.stockQuantity = stockQuantity;
         this.isActive = isActive;
         this.createdAt = createdAt;
+        this.version = version;
     }
 
     @PrePersist
@@ -127,5 +132,13 @@ public class Product {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 }

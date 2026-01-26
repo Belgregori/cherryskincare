@@ -1,12 +1,15 @@
-import { useState } from 'react';
+import { useState, Suspense, lazy } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import AddProduct from '../components/admin/AddProduct';
-import ProductList from '../components/admin/ProductList';
-import EditProduct from '../components/admin/EditProduct';
-import OrderList from '../components/admin/OrderList';
-import UserList from '../components/admin/UserList';
+import LoadingSpinner from '../components/LoadingSpinner';
 import './AdminDashboard.css';
+
+// Lazy load de componentes admin para reducir el bundle inicial
+const AddProduct = lazy(() => import('../components/admin/AddProduct'));
+const ProductList = lazy(() => import('../components/admin/ProductList'));
+const EditProduct = lazy(() => import('../components/admin/EditProduct'));
+const OrderList = lazy(() => import('../components/admin/OrderList'));
+const UserList = lazy(() => import('../components/admin/UserList'));
 
 function AdminDashboard() {
   const { user, logout } = useAuth();
@@ -86,27 +89,29 @@ function AdminDashboard() {
 
       <main className="admin-main">
         <div className="admin-content">
-          {activeSection === 'add-product' && (
-            <AddProduct onSuccess={() => {
-              setActiveSection('products');
-              setProductsRefreshKey(prev => prev + 1); // Forzar recarga de la lista
-            }} />
-          )}
-          {activeSection === 'products' && (
-            <ProductList 
-              onEditProduct={handleEditProduct}
-              refreshKey={productsRefreshKey}
-            />
-          )}
-          {activeSection === 'edit-product' && editingProductId && (
-            <EditProduct 
-              productId={editingProductId}
-              onCancel={handleCancelEdit}
-              onSuccess={handleEditSuccess}
-            />
-          )}
-          {activeSection === 'orders' && <OrderList />}
-          {activeSection === 'users' && <UserList />}
+          <Suspense fallback={<LoadingSpinner message="Cargando sección..." />}>
+            {activeSection === 'add-product' && (
+              <AddProduct onSuccess={() => {
+                setActiveSection('products');
+                setProductsRefreshKey(prev => prev + 1); // Forzar recarga de la lista
+              }} />
+            )}
+            {activeSection === 'products' && (
+              <ProductList 
+                onEditProduct={handleEditProduct}
+                refreshKey={productsRefreshKey}
+              />
+            )}
+            {activeSection === 'edit-product' && editingProductId && (
+              <EditProduct 
+                productId={editingProductId}
+                onCancel={handleCancelEdit}
+                onSuccess={handleEditSuccess}
+              />
+            )}
+            {activeSection === 'orders' && <OrderList />}
+            {activeSection === 'users' && <UserList />}
+          </Suspense>
         </div>
       </main>
     </div>

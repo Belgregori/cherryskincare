@@ -6,12 +6,15 @@
 }
 
 .footer-container {
-  max-width: 1200px;
+  max-width: var(--container-max-width, 1200px);
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 var(--container-padding, clamp(1rem, 4vw, 2rem));
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm, clamp(0.5rem, 1vw, 1rem));
+  width: 100%;
 }
 
 /* Nombre del emprendimiento en el centro */
@@ -23,15 +26,16 @@
 .footer-brand {
   font-family: 'Playfair Display', 'Georgia', 'Times New Roman', serif;
   font-style: italic;
-  font-size: 1.8rem;
+  font-size: var(--font-size-3xl, clamp(1.5rem, 3vw, 1.8rem));
   font-weight: 400;
   color: #C94A5A;
   margin: 0;
-  letter-spacing: 2px;
+  letter-spacing: clamp(0.5px, 0.2vw, 2px);
   text-shadow: 0 1px 2px rgba(201, 74, 90, 0.1);
   font-variant: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  line-height: 1.2;
 }
 
 /* Botones sociales */
@@ -77,34 +81,47 @@
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 575.98px) {
   .footer-container {
-    padding: 0 1rem;
+    padding: 0 var(--container-padding, 1rem);
+    flex-direction: column;
+    text-align: center;
   }
 
   .footer-brand {
-    font-size: 1.4rem;
+    font-size: var(--font-size-2xl, clamp(1.2rem, 2.5vw, 1.4rem));
+    letter-spacing: clamp(0.5px, 0.1vw, 1px);
+    order: 2;
   }
 
   .footer-left,
   .footer-right {
-    width: 50px;
+    width: auto;
+    order: 1;
+  }
+
+  .footer-center {
+    order: 3;
+    width: 100%;
   }
 
   .social-button {
-    padding: 0.5rem;
+    padding: var(--spacing-xs, clamp(0.25rem, 0.5vw, 0.5rem));
   }
 
   .social-button svg {
-    width: 20px;
-    height: 20px;
+    width: clamp(18px, 4vw, 24px);
+    height: clamp(18px, 4vw, 24px);
   }
 }
 
-@media (max-width: 480px) {
+@media (min-width: 576px) and (max-width: 767.98px) {
+  .footer-container {
+    padding: 0 var(--container-padding, 1.25rem);
+  }
+
   .footer-brand {
-    font-size: 1.2rem;
-    letter-spacing: 0.5px;
+    font-size: var(--font-size-2xl, clamp(1.4rem, 2.8vw, 1.6rem));
   }
 }
 

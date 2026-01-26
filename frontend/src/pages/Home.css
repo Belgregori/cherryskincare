@@ -6,34 +6,38 @@
 }
 
 .home-container {
-  max-width: 1200px;
+  max-width: var(--container-max-width, 1200px);
   margin: 0 auto;
-  padding: 2rem;
+  padding: var(--container-padding, clamp(1rem, 4vw, 2rem));
   flex: 1;
+  width: 100%;
 }
 
 .hero-section {
   text-align: center;
-  margin: 3rem 0;
-  padding: 3rem 2rem;
+  margin: var(--spacing-lg, clamp(1.5rem, 3vw, 2.5rem)) 0;
+  padding: var(--spacing-lg, clamp(1.5rem, 3vw, 2.5rem)) var(--container-padding, clamp(1rem, 4vw, 2rem));
   background: linear-gradient(135deg, #C94A5A 0%, #D16C7C 100%);
   color: white;
-  border-radius: 15px;
+  border-radius: var(--radius-lg, clamp(12px, 1.5vw, 16px));
   box-shadow: 0 4px 16px rgba(201, 74, 90, 0.2);
+  width: 100%;
 }
 
 .hero-section h1 {
   margin: 0;
-  font-size: 3rem;
+  font-size: var(--font-size-4xl, clamp(2.5rem, 5vw, 3.5rem));
   font-weight: 600;
   letter-spacing: -1px;
+  line-height: 1.2;
 }
 
 .hero-section p {
-  margin: 1rem 0 0 0;
-  font-size: 1.3rem;
+  margin: var(--spacing-sm, clamp(0.5rem, 1vw, 1rem)) 0 0 0;
+  font-size: var(--font-size-lg, clamp(1.125rem, 2.25vw, 1.25rem));
   opacity: 0.95;
   font-weight: 300;
+  line-height: 1.5;
 }
 
 .carousel-section {
@@ -46,16 +50,43 @@
 }
 
 .products-section h2 {
-  font-size: 2rem;
-  margin-bottom: 2rem;
+  font-size: var(--font-size-3xl, clamp(2rem, 4vw, 2.5rem));
+  margin-bottom: var(--spacing-md, clamp(1rem, 2vw, 1.5rem));
   color: #333;
+  line-height: 1.2;
 }
 
 .products-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 2rem;
-  margin-top: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+  gap: var(--grid-gap, clamp(1rem, 2vw, 2rem));
+  margin-top: var(--spacing-md, clamp(1rem, 2vw, 1.5rem));
+  width: 100%;
+}
+
+@media (max-width: 575.98px) {
+  .products-grid {
+    grid-template-columns: 1fr;
+    gap: var(--grid-gap-sm, clamp(0.5rem, 1vw, 1rem));
+  }
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 992px) {
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
 }
 
 .product-card {
@@ -78,9 +109,11 @@
 
 .product-image {
   width: 100%;
-  height: 250px;
+  height: clamp(200px, 40vw, 250px);
+  min-height: 200px;
   overflow: hidden;
   background: #f5f5f5;
+  aspect-ratio: 4/3;
 }
 
 .product-image img {

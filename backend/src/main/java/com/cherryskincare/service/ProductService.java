@@ -1,10 +1,15 @@
 package com.cherryskincare.service;
 
+import com.cherryskincare.dto.PageResponseDTO;
 import com.cherryskincare.dto.ProductDTO;
 import com.cherryskincare.exception.ProductNotFoundException;
 import com.cherryskincare.model.Product;
 import com.cherryskincare.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,10 +33,46 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+    public PageResponseDTO<ProductDTO> getAllProducts(int page, int size, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<Product> productPage = productRepository.findByIsActiveTrue(pageable);
+        
+        List<ProductDTO> content = productPage.getContent().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+        
+        return new PageResponseDTO<>(
+                content,
+                productPage.getNumber(),
+                productPage.getSize(),
+                productPage.getTotalElements(),
+                productPage.getTotalPages()
+        );
+    }
+
     public List<ProductDTO> getProductsByCategory(String category) {
         return productRepository.findByCategoryAndIsActiveTrue(category).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+    }
+
+    public PageResponseDTO<ProductDTO> getProductsByCategory(String category, int page, int size, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<Product> productPage = productRepository.findByCategoryAndIsActiveTrue(category, pageable);
+        
+        List<ProductDTO> content = productPage.getContent().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+        
+        return new PageResponseDTO<>(
+                content,
+                productPage.getNumber(),
+                productPage.getSize(),
+                productPage.getTotalElements(),
+                productPage.getTotalPages()
+        );
     }
 
     public ProductDTO getProductById(Long id) {
@@ -44,6 +85,24 @@ public class ProductService {
         return productRepository.findByNameContainingIgnoreCase(searchTerm).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+    }
+
+    public PageResponseDTO<ProductDTO> searchProducts(String searchTerm, int page, int size, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<Product> productPage = productRepository.findByNameContainingIgnoreCase(searchTerm, pageable);
+        
+        List<ProductDTO> content = productPage.getContent().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+        
+        return new PageResponseDTO<>(
+                content,
+                productPage.getNumber(),
+                productPage.getSize(),
+                productPage.getTotalElements(),
+                productPage.getTotalPages()
+        );
     }
 
     public ProductDTO createProduct(ProductDTO productDTO) {

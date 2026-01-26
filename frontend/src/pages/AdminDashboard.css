@@ -5,7 +5,7 @@
 }
 
 .admin-sidebar {
-  width: 280px;
+  width: min(280px, 100%);
   background: white;
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
   display: flex;
@@ -13,6 +13,7 @@
   position: fixed;
   height: 100vh;
   overflow-y: auto;
+  z-index: 100;
 }
 
 .sidebar-header {
@@ -84,8 +85,15 @@
 
 .admin-main {
   flex: 1;
-  margin-left: 280px;
-  padding: 2rem;
+  margin-left: 0;
+  padding: var(--container-padding, clamp(1rem, 4vw, 2rem));
+  width: 100%;
+}
+
+@media (min-width: 992px) {
+  .admin-main {
+    margin-left: min(280px, 25vw);
+  }
 }
 
 .admin-content {
@@ -93,16 +101,33 @@
   margin: 0 auto;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 991.98px) {
   .admin-sidebar {
     width: 100%;
     position: relative;
     height: auto;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
 
   .admin-main {
     margin-left: 0;
-    padding: 1rem;
+    padding: var(--container-padding, clamp(1rem, 4vw, 2rem));
+  }
+}
+
+@media (max-width: 575.98px) {
+  .admin-sidebar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  
+  .sidebar-header {
+    padding: var(--spacing-md, clamp(1rem, 2vw, 1.5rem));
+  }
+  
+  .sidebar-header h2 {
+    font-size: var(--font-size-xl, clamp(1.25rem, 2.5vw, 1.5rem));
   }
 }
 

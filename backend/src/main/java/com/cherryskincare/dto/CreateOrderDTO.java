@@ -3,21 +3,24 @@ package com.cherryskincare.dto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
 import java.util.List;
 
 public class CreateOrderDTO {
-    @NotEmpty(message = "La orden debe tener al menos un producto")
+    @NotEmpty(message = "Order must have at least one product")
     @Valid
     private List<OrderItemDTO> orderItems;
     
-    @NotBlank(message = "La dirección de envío es obligatoria")
+    @NotBlank(message = "Shipping address is required")
     private String shippingAddress;
     
-    @NotBlank(message = "La ciudad es obligatoria")
+    @NotBlank(message = "City is required")
     private String shippingCity;
     
+    @Pattern(regexp = "^[0-9]{4,10}$", message = "Postal code must be between 4 and 10 digits")
     private String shippingPostalCode;
     
+    @Pattern(regexp = "^[+]?[0-9]{8,15}$", message = "Phone number must be between 8 and 15 digits and may include the + prefix")
     private String shippingPhone;
 
     private String customerName;

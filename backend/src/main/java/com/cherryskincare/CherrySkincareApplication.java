@@ -95,7 +95,7 @@ public class CherrySkincareApplication implements CommandLineRunner {
 				User admin = new User();
 				admin.setName("Administrador");
 				admin.setEmail(adminEmail.trim().toLowerCase());
-				admin.setTelefone("0000000000");
+				admin.setPhone("0000000000");
 				admin.setPassword(passwordEncoder.encode(adminPassword));
 				admin.setRole(User.Role.ADMIN);
 				userRepository.save(admin);

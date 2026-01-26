@@ -1,5 +1,6 @@
 package com.cherryskincare.dto;
 
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
@@ -12,8 +13,10 @@ public class OrderItemDTO {
     @Min(value = 1, message = "La cantidad debe ser al menos 1")
     private Integer quantity;
     
+    @DecimalMin(value = "0.0", inclusive = false, message = "El precio debe ser mayor a cero")
     private BigDecimal price;
     
+    @DecimalMin(value = "0.0", inclusive = false, message = "El subtotal debe ser mayor a cero")
     private BigDecimal subtotal;
 
     public OrderItemDTO() {

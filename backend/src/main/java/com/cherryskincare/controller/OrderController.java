@@ -2,6 +2,7 @@ package com.cherryskincare.controller;
 
 import com.cherryskincare.dto.CreateOrderDTO;
 import com.cherryskincare.dto.OrderDTO;
+import com.cherryskincare.dto.PageResponseDTO;
 import com.cherryskincare.model.Order;
 import com.cherryskincare.model.User;
 import com.cherryskincare.service.OrderService;
@@ -79,7 +80,12 @@ public class OrderController {
             description = "Lista de órdenes obtenida exitosamente"
     )
     @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getOrdersByUser(@PathVariable Long userId) {
+    public ResponseEntity<?> getOrdersByUser(
+            @PathVariable Long userId,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false, defaultValue = "id") String sortBy,
+            @RequestParam(required = false, defaultValue = "desc") String sortDir) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal() instanceof String) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -91,7 +97,15 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        return ResponseEntity.ok(orderService.getOrdersByUser(userId));
+        if (page == null && size == null) {
+            return ResponseEntity.ok(orderService.getOrdersByUser(userId));
+        }
+
+        int pageNum = page != null ? page : 0;
+        int pageSize = size != null ? size : 20;
+        if (pageSize > 100) pageSize = 100;
+
+        return ResponseEntity.ok(orderService.getOrdersByUser(userId, pageNum, pageSize, sortBy, sortDir));
     }
 
     @GetMapping("/{id}")
@@ -116,7 +130,11 @@ public class OrderController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllOrders() {
+    public ResponseEntity<?> getAllOrders(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false, defaultValue = "id") String sortBy,
+            @RequestParam(required = false, defaultValue = "desc") String sortDir) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal() instanceof String) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -127,7 +145,15 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        return ResponseEntity.ok(orderService.getAllOrders());
+        if (page == null && size == null) {
+            return ResponseEntity.ok(orderService.getAllOrders());
+        }
+
+        int pageNum = page != null ? page : 0;
+        int pageSize = size != null ? size : 20;
+        if (pageSize > 100) pageSize = 100;
+
+        return ResponseEntity.ok(orderService.getAllOrders(pageNum, pageSize, sortBy, sortDir));
     }
 
     @PutMapping("/{id}/status")

@@ -17,6 +17,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
+/**
+ * Service for managing user operations including registration, authentication, and profile updates.
+ * 
+ * @author Cherry Skincare Team
+ */
 @Service
 @Transactional
 public class UserService {
@@ -29,138 +34,248 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    /**
+     * Gets the password encoder instance.
+     * 
+     * @return The password encoder
+     */
+    public PasswordEncoder getPasswordEncoder() {
+        return passwordEncoder;
+    }
+
+    /**
+     * Registers a new user in the system.
+     * Validates that at least email or phone is provided, checks for duplicates,
+     * and creates a new user with encoded password.
+     * 
+     * @param registrationDTO User registration data
+     * @return The registered user
+     * @throws ValidationException If validation fails (missing required fields, duplicate email/phone)
+     */
     public User registerUser(UserRegistrationDTO registrationDTO) {
-        logger.info("Intentando registrar nuevo usuario: {}", registrationDTO.getEmail() != null ? registrationDTO.getEmail() : registrationDTO.getTelefone());
+        logger.info("Attempting to register new user: {}", 
+                registrationDTO.getEmail() != null ? registrationDTO.getEmail() : registrationDTO.getPhone());
         
-        // Validar que al menos email o teléfono estén presentes
+        // Validate that at least email or phone is present
         if ((registrationDTO.getEmail() == null || registrationDTO.getEmail().trim().isEmpty()) &&
-            (registrationDTO.getTelefone() == null || registrationDTO.getTelefone().trim().isEmpty())) {
-            logger.warn("Intento de registro sin email ni teléfono");
-            throw new ValidationException("Debes proporcionar un email o teléfono");
+            (registrationDTO.getPhone() == null || registrationDTO.getPhone().trim().isEmpty())) {
+            logger.warn("Registration attempt without email or phone");
+            throw new ValidationException("You must provide an email or phone number");
         }
 
-        // Validar nombre
+        // Validate name
         if (registrationDTO.getName() == null || registrationDTO.getName().trim().isEmpty()) {
-            logger.warn("Intento de registro sin nombre");
-            throw new ValidationException("El nombre es obligatorio");
+            logger.warn("Registration attempt without name");
+            throw new ValidationException("Name is required");
         }
 
-        // Si hay email, verificar que no esté duplicado
+        // Validate email uniqueness if present
         if (registrationDTO.getEmail() != null && !registrationDTO.getEmail().trim().isEmpty()) {
-            if (userRepository.existsByEmail(registrationDTO.getEmail())) {
-                logger.warn("Intento de registro con email duplicado: {}", registrationDTO.getEmail());
-                throw new ValidationException("El email ya está registrado");
+            if (userRepository.existsByEmail(registrationDTO.getEmail().trim().toLowerCase())) {
+                logger.warn("Registration attempt with duplicate email: {}", registrationDTO.getEmail());
+                throw new ValidationException("Email is already registered");
+            }
+        }
+
+        // Validate phone uniqueness if present
+        if (registrationDTO.getPhone() != null && !registrationDTO.getPhone().trim().isEmpty()) {
+            if (userRepository.existsByPhone(registrationDTO.getPhone().trim())) {
+                logger.warn("Registration attempt with duplicate phone: {}", registrationDTO.getPhone());
+                throw new ValidationException("Phone number is already registered");
             }
         }
 
         User user = new User();
         user.setName(registrationDTO.getName().trim());
         
-        // Si no hay email, usar el teléfono como email (para login)
+        // If no email, use phone as email (for login)
         if (registrationDTO.getEmail() == null || registrationDTO.getEmail().trim().isEmpty()) {
-            user.setEmail(registrationDTO.getTelefone());
+            // If using phone as email, verify that no other user has that phone as email
+            if (userRepository.existsByEmail(registrationDTO.getPhone().trim())) {
+                logger.warn("Registration attempt: phone already used as email: {}", registrationDTO.getPhone());
+                throw new ValidationException("Phone number is already registered");
+            }
+            user.setEmail(registrationDTO.getPhone().trim());
         } else {
             user.setEmail(registrationDTO.getEmail().trim().toLowerCase());
         }
         
-        user.setTelefone(registrationDTO.getTelefone() != null ? registrationDTO.getTelefone() : registrationDTO.getEmail());
+        user.setPhone(registrationDTO.getPhone() != null ? registrationDTO.getPhone().trim() : registrationDTO.getEmail().trim());
         user.setPassword(passwordEncoder.encode(registrationDTO.getPassword()));
         user.setRole(User.Role.USER);
 
         User savedUser = userRepository.save(user);
-        logger.info("Usuario registrado exitosamente con ID: {}", savedUser.getId());
+        logger.info("User registered successfully with ID: {}", savedUser.getId());
         return savedUser;
     }
 
+    /**
+     * Finds a user by email address.
+     * 
+     * @param email The email address to search for
+     * @return The user with the specified email
+     * @throws UserNotFoundException If no user is found with the given email
+     */
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException(email));
     }
 
-    public User findByEmailOrTelefone(String identifier) {
-        // Intentar buscar por email primero
+    /**
+     * Finds a user by email or phone number.
+     * First attempts to find by email, then by phone if not found.
+     * 
+     * @param identifier Email or phone number to search for
+     * @return The user with the specified email or phone
+     * @throws UserNotFoundException If no user is found with the given identifier
+     */
+    public User findByEmailOrPhone(String identifier) {
+        // Try to find by email first
         Optional<User> userByEmail = userRepository.findByEmail(identifier);
         if (userByEmail.isPresent()) {
             return userByEmail.get();
         }
         
-        // Si no se encuentra por email, buscar por teléfono
-        return userRepository.findByTelefone(identifier)
-                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con identificador: " + identifier));
+        // If not found by email, search by phone
+        return userRepository.findByPhone(identifier)
+                .orElseThrow(() -> new UserNotFoundException("User not found with identifier: " + identifier));
     }
 
+    /**
+     * Finds a user by ID.
+     * 
+     * @param id The user ID to search for
+     * @return The user with the specified ID
+     * @throws UserNotFoundException If no user is found with the given ID
+     */
     public User findById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
     }
 
+    /**
+     * Authenticates a user with email/phone and password.
+     * 
+     * @param email Email or phone number for authentication
+     * @param password Plain text password
+     * @return The authenticated user
+     * @throws InvalidCredentialsException If credentials are invalid
+     */
     public User authenticate(String email, String password) {
-        logger.info("Intento de autenticación para: {}", email);
+        logger.info("Authentication attempt for: {}", email);
         
         try {
-            User user = findByEmailOrTelefone(email);
+            User user = findByEmailOrPhone(email);
             
             if (!passwordEncoder.matches(password, user.getPassword())) {
-                logger.warn("Intento de autenticación fallido - contraseña incorrecta para: {}", email);
-                throw new InvalidCredentialsException("Credenciales inválidas");
+                logger.warn("Authentication failed - incorrect password for: {}", email);
+                throw new InvalidCredentialsException("Invalid credentials");
             }
             
-            logger.info("Autenticación exitosa para usuario ID: {}, rol: {}", user.getId(), user.getRole());
+            logger.info("Authentication successful for user ID: {}, role: {}", user.getId(), user.getRole());
             return user;
         } catch (UserNotFoundException e) {
-            logger.warn("Intento de autenticación fallido - usuario no encontrado: {}", email);
-            throw new InvalidCredentialsException("Credenciales inválidas");
+            logger.warn("Authentication failed - user not found: {}", email);
+            throw new InvalidCredentialsException("Invalid credentials");
         }
     }
 
+    /**
+     * Updates user information.
+     * Validates that at least email or phone is provided and checks for duplicates.
+     * 
+     * @param userId ID of the user to update
+     * @param updateUserDTO Updated user data
+     * @return The updated user
+     * @throws ValidationException If validation fails (missing required fields, duplicate email/phone)
+     * @throws UserNotFoundException If user is not found
+     */
     public User updateUser(Long userId, UpdateUserDTO updateUserDTO) {
+        logger.info("Updating user with ID: {}", userId);
         User user = findById(userId);
         
-        // Validar que al menos email o teléfono estén presentes
+        // Validate that at least email or phone is present
         if ((updateUserDTO.getEmail() == null || updateUserDTO.getEmail().trim().isEmpty()) &&
-            (updateUserDTO.getTelefone() == null || updateUserDTO.getTelefone().trim().isEmpty())) {
-            throw new ValidationException("Debes proporcionar un email o teléfono");
+            (updateUserDTO.getPhone() == null || updateUserDTO.getPhone().trim().isEmpty())) {
+            logger.warn("Update attempt without email or phone for user ID: {}", userId);
+            throw new ValidationException("You must provide an email or phone number");
         }
         
-        // Si hay email y es diferente al actual, verificar que no esté duplicado
+        // Validate email uniqueness if present and different from current
         if (updateUserDTO.getEmail() != null && !updateUserDTO.getEmail().trim().isEmpty()) {
-            if (!user.getEmail().equals(updateUserDTO.getEmail())) {
-                if (userRepository.existsByEmail(updateUserDTO.getEmail())) {
-                    throw new ValidationException("El email ya está registrado");
+            String newEmail = updateUserDTO.getEmail().trim().toLowerCase();
+            if (!user.getEmail().equals(newEmail)) {
+                if (userRepository.existsByEmail(newEmail)) {
+                    logger.warn("Update attempt with duplicate email: {}", newEmail);
+                    throw new ValidationException("Email is already registered");
+                }
+            }
+        }
+
+        // Validate phone uniqueness if present and different from current
+        if (updateUserDTO.getPhone() != null && !updateUserDTO.getPhone().trim().isEmpty()) {
+            String newPhone = updateUserDTO.getPhone().trim();
+            if (!user.getPhone().equals(newPhone)) {
+                if (userRepository.existsByPhone(newPhone)) {
+                    logger.warn("Update attempt with duplicate phone: {}", newPhone);
+                    throw new ValidationException("Phone number is already registered");
                 }
             }
         }
         
         user.setName(updateUserDTO.getName());
         
-        // Si no hay email, usar el teléfono como email (para login)
+        // If no email, use phone as email (for login)
         if (updateUserDTO.getEmail() == null || updateUserDTO.getEmail().trim().isEmpty()) {
-            user.setEmail(updateUserDTO.getTelefone());
+            String phoneToUse = updateUserDTO.getPhone() != null ? updateUserDTO.getPhone().trim() : user.getPhone();
+            // Verify that phone is not used as email by another user
+            if (!user.getEmail().equals(phoneToUse) && userRepository.existsByEmail(phoneToUse)) {
+                logger.warn("Update attempt: phone already used as email: {}", phoneToUse);
+                throw new ValidationException("Phone number is already registered");
+            }
+            user.setEmail(phoneToUse);
         } else {
-            user.setEmail(updateUserDTO.getEmail());
+            user.setEmail(updateUserDTO.getEmail().trim().toLowerCase());
         }
         
-        user.setTelefone(updateUserDTO.getTelefone() != null ? updateUserDTO.getTelefone() : updateUserDTO.getEmail());
+        user.setPhone(updateUserDTO.getPhone() != null ? updateUserDTO.getPhone().trim() : 
+                        (updateUserDTO.getEmail() != null && !updateUserDTO.getEmail().trim().isEmpty() ? 
+                         updateUserDTO.getEmail().trim() : user.getPhone()));
         
-        return userRepository.save(user);
+        User updatedUser = userRepository.save(user);
+        logger.info("User updated successfully with ID: {}", updatedUser.getId());
+        return updatedUser;
     }
 
+    /**
+     * Changes a user's password.
+     * Validates the current password and ensures the new password is different.
+     * 
+     * @param userId ID of the user changing the password
+     * @param changePasswordDTO Password change data (current and new password)
+     * @throws InvalidCredentialsException If current password is incorrect
+     * @throws ValidationException If new password is the same as current password
+     * @throws UserNotFoundException If user is not found
+     */
     public void changePassword(Long userId, ChangePasswordDTO changePasswordDTO) {
+        logger.info("Changing password for user ID: {}", userId);
         User user = findById(userId);
         
-        // Verificar contraseña actual
+        // Verify current password
         if (!passwordEncoder.matches(changePasswordDTO.getCurrentPassword(), user.getPassword())) {
-            throw new InvalidCredentialsException("La contraseña actual es incorrecta");
+            logger.warn("Password change failed - incorrect current password for user ID: {}", userId);
+            throw new InvalidCredentialsException("Current password is incorrect");
         }
         
-        // Validar que la nueva contraseña sea diferente
+        // Validate that new password is different
         if (passwordEncoder.matches(changePasswordDTO.getNewPassword(), user.getPassword())) {
-            throw new ValidationException("La nueva contraseña debe ser diferente a la actual");
+            logger.warn("Password change failed - new password same as current for user ID: {}", userId);
+            throw new ValidationException("New password must be different from current password");
         }
         
-        // Actualizar contraseña
+        // Update password
         user.setPassword(passwordEncoder.encode(changePasswordDTO.getNewPassword()));
         userRepository.save(user);
+        logger.info("Password changed successfully for user ID: {}", userId);
     }
 }
-

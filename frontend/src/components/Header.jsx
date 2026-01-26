@@ -39,25 +39,30 @@ function Header() {
         </button>
 
         {/* Menú desplegable */}
-        <nav className={`dropdown-menu ${isMenuOpen ? 'open' : ''}`}>
-          <ul className="menu-list">
-            <li>
-              <Link to="/" onClick={() => setIsMenuOpen(false)}>
+        <nav 
+          className={`dropdown-menu ${isMenuOpen ? 'open' : ''}`}
+          aria-label="Navegación principal"
+          aria-hidden={!isMenuOpen}
+          aria-expanded={isMenuOpen}
+        >
+          <ul className="menu-list" role="menubar">
+            <li role="none">
+              <Link to="/" onClick={() => setIsMenuOpen(false)} role="menuitem">
                 Inicio
               </Link>
             </li>
-            <li>
-              <Link to="/products" onClick={() => setIsMenuOpen(false)}>
+            <li role="none">
+              <Link to="/products" onClick={() => setIsMenuOpen(false)} role="menuitem">
                 Productos
               </Link>
             </li>
-            <li>
-              <Link to="/categories" onClick={() => setIsMenuOpen(false)}>
+            <li role="none">
+              <Link to="/categories" onClick={() => setIsMenuOpen(false)} role="menuitem">
                 Categorías
               </Link>
             </li>
-            <li>
-              <Link to="/how-to-use" onClick={() => setIsMenuOpen(false)}>
+            <li role="none">
+              <Link to="/how-to-use" onClick={() => setIsMenuOpen(false)} role="menuitem">
                 ¿Cómo se usa?
               </Link>
             </li>

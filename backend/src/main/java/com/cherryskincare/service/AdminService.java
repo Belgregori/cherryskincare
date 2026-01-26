@@ -4,6 +4,7 @@ import com.cherryskincare.dto.AdminOrderDTO;
 import com.cherryskincare.dto.AdminProductDTO;
 import com.cherryskincare.dto.AdminUserDTO;
 import com.cherryskincare.dto.OrderItemDTO;
+import com.cherryskincare.dto.PageResponseDTO;
 import com.cherryskincare.exception.OrderNotFoundException;
 import com.cherryskincare.exception.ProductNotFoundException;
 import com.cherryskincare.exception.UserNotFoundException;
@@ -17,6 +18,10 @@ import com.cherryskincare.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +49,24 @@ public class AdminService {
         return productRepository.findAll().stream()
                 .map(this::convertProductToDTO)
                 .collect(Collectors.toList());
+    }
+
+    public PageResponseDTO<AdminProductDTO> getAllProducts(int page, int size, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<Product> productPage = productRepository.findAll(pageable);
+        
+        List<AdminProductDTO> content = productPage.getContent().stream()
+                .map(this::convertProductToDTO)
+                .collect(Collectors.toList());
+        
+        return new PageResponseDTO<>(
+                content,
+                productPage.getNumber(),
+                productPage.getSize(),
+                productPage.getTotalElements(),
+                productPage.getTotalPages()
+        );
     }
 
     public AdminProductDTO getProductById(Long id) {
@@ -150,6 +173,24 @@ public class AdminService {
                 .collect(Collectors.toList());
     }
 
+    public PageResponseDTO<AdminOrderDTO> getAllOrders(int page, int size, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<Order> orderPage = orderRepository.findAll(pageable);
+        
+        List<AdminOrderDTO> content = orderPage.getContent().stream()
+                .map(this::convertOrderToDTO)
+                .collect(Collectors.toList());
+        
+        return new PageResponseDTO<>(
+                content,
+                orderPage.getNumber(),
+                orderPage.getSize(),
+                orderPage.getTotalElements(),
+                orderPage.getTotalPages()
+        );
+    }
+
     public AdminOrderDTO getOrderById(Long id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException(id));
@@ -170,6 +211,24 @@ public class AdminService {
         return userRepository.findAll().stream()
                 .map(this::convertUserToDTO)
                 .collect(Collectors.toList());
+    }
+
+    public PageResponseDTO<AdminUserDTO> getAllUsers(int page, int size, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<User> userPage = userRepository.findAll(pageable);
+        
+        List<AdminUserDTO> content = userPage.getContent().stream()
+                .map(this::convertUserToDTO)
+                .collect(Collectors.toList());
+        
+        return new PageResponseDTO<>(
+                content,
+                userPage.getNumber(),
+                userPage.getSize(),
+                userPage.getTotalElements(),
+                userPage.getTotalPages()
+        );
     }
 
     public AdminUserDTO getUserById(Long id) {
@@ -199,7 +258,7 @@ public class AdminService {
         dto.setUserId(order.getUser().getId());
         dto.setUserName(order.getUser().getName());
         dto.setUserEmail(order.getUser().getEmail());
-        dto.setUserPhone(order.getUser().getTelefone());
+        dto.setUserPhone(order.getUser().getPhone());
         dto.setTotalAmount(order.getTotalAmount());
         dto.setStatus(order.getStatus().name());
         dto.setShippingAddress(order.getShippingAddress());
@@ -232,7 +291,7 @@ public class AdminService {
         dto.setId(user.getId());
         dto.setName(user.getName());
         dto.setEmail(user.getEmail());
-        dto.setTelefone(user.getTelefone());
+        dto.setPhone(user.getPhone());
         dto.setRole(user.getRole().name());
 
         // Contar órdenes del usuario

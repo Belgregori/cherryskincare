@@ -4,16 +4,17 @@
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
-  padding: 2rem;
+  padding: var(--container-padding, clamp(1rem, 4vw, 2rem));
+  width: 100%;
 }
 
 .register-container {
   background: white;
-  border-radius: 15px;
+  border-radius: var(--radius-lg, clamp(12px, 1.5vw, 16px));
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-  padding: 3rem;
+  padding: var(--spacing-lg, clamp(1.5rem, 3vw, 2.5rem));
   width: 100%;
-  max-width: 500px;
+  max-width: min(500px, 90vw);
 }
 
 .register-header {
@@ -26,10 +27,11 @@
 }
 
 .register-header h1 {
-  font-size: 2rem;
+  font-size: var(--font-size-3xl, clamp(1.75rem, 3.5vw, 2rem));
   color: #333;
-  margin: 0.5rem 0;
+  margin: var(--spacing-xs, clamp(0.25rem, 0.5vw, 0.5rem)) 0;
   font-weight: 600;
+  line-height: 1.2;
 }
 
 .register-header p {
@@ -138,13 +140,13 @@
   text-decoration: underline;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 575.98px) {
   .register-container {
-    padding: 2rem 1.5rem;
+    padding: var(--spacing-md, clamp(1rem, 2vw, 1.5rem));
   }
 
   .register-header h1 {
-    font-size: 1.5rem;
+    font-size: var(--font-size-2xl, clamp(1.5rem, 3vw, 1.75rem));
   }
 }
 

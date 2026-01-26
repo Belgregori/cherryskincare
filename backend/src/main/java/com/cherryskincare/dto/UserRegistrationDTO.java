@@ -2,20 +2,22 @@ package com.cherryskincare.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public class UserRegistrationDTO {
-    @NotBlank(message = "El nombre es obligatorio")
-    @Size(min = 2, max = 100, message = "El nombre debe tener entre 2 y 100 caracteres")
+    @NotBlank(message = "Name is required")
+    @Size(min = 2, max = 100, message = "Name must be between 2 and 100 characters")
     private String name;
     
-    @Email(message = "El email debe tener un formato válido")
+    @Email(message = "Email must be in a valid format")
     private String email;
     
-    private String telefone;
+    @Pattern(regexp = "^[+]?[0-9]{8,15}$", message = "Phone number must be between 8 and 15 digits and may include the + prefix")
+    private String phone;
     
-    @NotBlank(message = "La contraseña es obligatoria")
-    @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres")
+    @NotBlank(message = "Password is required")
+    @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
 
     public UserRegistrationDTO() {
@@ -37,12 +39,12 @@ public class UserRegistrationDTO {
         this.email = email;
     }
 
-    public String getTelefone() {
-        return telefone;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setTelefone(String telefone) {
-        this.telefone = telefone;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getPassword() {
