@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import api from '../../services/api';
+import { productService } from '../../services/productService';
 import './AddProduct.css';
 
 function AddProduct({ onSuccess }) {
@@ -14,6 +15,29 @@ function AddProduct({ onSuccess }) {
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [categories, setCategories] = useState([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+
+  // Cargar categorías al montar el componente
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        setLoadingCategories(true);
+        const categoriesData = await productService.getCategories();
+        setCategories(categoriesData);
+      } catch (error) {
+        console.error('Error al cargar categorías:', error);
+        setMessage({ 
+          type: 'error', 
+          text: 'Error al cargar las categorías. Por favor, recarga la página.' 
+        });
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+
+    loadCategories();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -138,15 +162,37 @@ function AddProduct({ onSuccess }) {
 
           <div className="form-group">
             <label htmlFor="category">Categoría *</label>
-            <input
-              type="text"
-              id="category"
-              name="category"
-              value={formData.category}
-              onChange={handleInputChange}
-              required
-              placeholder="Ej: Cremas, Serums, Limpieza"
-            />
+            {loadingCategories ? (
+              <select
+                id="category"
+                name="category"
+                disabled
+                className="form-select"
+              >
+                <option value="">Cargando categorías...</option>
+              </select>
+            ) : (
+              <select
+                id="category"
+                name="category"
+                value={formData.category}
+                onChange={handleInputChange}
+                required
+                className="form-select"
+              >
+                <option value="">Selecciona una categoría</option>
+                {categories.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+            )}
+            {categories.length > 0 && (
+              <small className="category-info">
+                Categorías disponibles: {categories.join(', ')}
+              </small>
+            )}
           </div>
         </div>
 

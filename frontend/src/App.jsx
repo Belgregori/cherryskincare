@@ -6,6 +6,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { setupGlobalErrorHandling, cleanupGlobalErrorHandling } from './utils/globalErrorHandler';
 import ProtectedRoute from './components/ProtectedRoute';
 import LoadingSpinner from './components/LoadingSpinner';
+import Background from './components/Background';
 import { prefetchCommonRoutes, prefetchRelatedRoutes } from './utils/routePrefetch';
 import './App.css';
 import './styles/accessibility.css';
@@ -65,6 +66,7 @@ function App() {
         <Router>
           <ErrorBoundary>
             <RoutePrefetcher />
+            <Background />
             <div className="App">
               <Suspense fallback={<LoadingSpinner message="Cargando página..." />}>
                 <Routes>

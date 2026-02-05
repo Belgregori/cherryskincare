@@ -43,12 +43,13 @@ function Login() {
     <div className="login-page">
       <Header />
       <div className="login-container">
-        <div className="login-header">
-          <h1>Iniciar Sesión</h1>
-          <p>Ingresa tus credenciales</p>
-        </div>
+        <div className="login-content-wrapper">
+          <div className="login-header">
+            <h1>Iniciar Sesión</h1>
+            <p>Ingresa tus credenciales</p>
+          </div>
 
-        <form onSubmit={handleSubmit} className="login-form">
+          <form onSubmit={handleSubmit} className="login-form">
           {error && <div className="error-message">{error}</div>}
 
           <div className="form-group">
@@ -84,6 +85,7 @@ function Login() {
             <p><Link to="/forgot-password">¿Olvidaste tu contraseña?</Link></p>
           </div>
         </form>
+        </div>
       </div>
       <Footer />
     </div>

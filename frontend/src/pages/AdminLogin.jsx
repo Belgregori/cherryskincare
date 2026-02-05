@@ -41,12 +41,13 @@ function AdminLogin() {
     <div className="admin-login-page">
       <Header />
       <div className="admin-login-container">
-        <div className="admin-login-header">
-          <h1>Panel de Administración</h1>
-          <p>Ingresa tus credenciales de administrador</p>
-        </div>
+        <div className="admin-login-content-wrapper">
+          <div className="admin-login-header">
+            <h1>Panel de Administración</h1>
+            <p>Ingresa tus credenciales de administrador</p>
+          </div>
 
-        <form onSubmit={handleSubmit} className="admin-login-form">
+          <form onSubmit={handleSubmit} className="admin-login-form">
           {error && <div className="error-message">{error}</div>}
 
           <div className="form-group">
@@ -77,6 +78,7 @@ function AdminLogin() {
             {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
           </button>
         </form>
+        </div>
       </div>
       <Footer />
     </div>

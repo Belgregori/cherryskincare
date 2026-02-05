@@ -26,6 +26,27 @@ public class ProductController {
     private ProductService productService;
 
     @Operation(
+            summary = "Obtener categorías disponibles",
+            description = "Retorna la lista de categorías válidas para los productos"
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Lista de categorías obtenida exitosamente"
+    )
+    @GetMapping("/categories")
+    public ResponseEntity<List<String>> getCategories() {
+        List<String> categories = List.of(
+            "MAQUILLAJE",
+            "SKINCARE",
+            "COMPLEMENTOS",
+            "ACCCESORIOS PARA EL PELO",
+            "NECESER Y BOLSOS",
+            "VELAS AROMATICAS"
+        );
+        return ResponseEntity.ok(categories);
+    }
+
+    @Operation(
             summary = "Obtener todos los productos activos",
             description = "Retorna una lista de todos los productos que están activos en el catálogo. Soporta paginación opcional."
     )

@@ -1,10 +1,40 @@
 import axios from 'axios';
 
 // URL base del API - configurable mediante variable de entorno
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+// En desarrollo, usar proxy de Vite (ruta relativa)
+// En producción, usar la URL completa
+const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api' : 'http://localhost:8080/api');
 
 // URL base para imágenes
-export const IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_BASE_URL || 'http://localhost:8080';
+// En desarrollo, usar URL completa porque el proxy de Vite puede no funcionar para <img> tags
+// En producción, usar la URL completa del servidor
+export const IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_BASE_URL || (import.meta.env.DEV ? 'http://localhost:8080' : 'http://localhost:8080');
+
+// Función helper para construir URLs de imágenes correctamente
+export const getImageUrl = (imageUrl) => {
+  if (!imageUrl) {
+    console.warn('getImageUrl: imageUrl is empty');
+    return '';
+  }
+  
+  // Si imageUrl ya es una URL completa (http:// o https://), retornarla tal cual
+  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+    console.log('getImageUrl: Already full URL:', imageUrl);
+    return imageUrl;
+  }
+  
+  // Si imageUrl ya incluye /api/, agregar IMAGE_BASE_URL al inicio
+  if (imageUrl.startsWith('/api/')) {
+    const finalUrl = `${IMAGE_BASE_URL}${imageUrl}`;
+    console.log('getImageUrl: Built URL from /api/ path:', imageUrl, '->', finalUrl);
+    return finalUrl;
+  }
+  
+  // Si imageUrl no incluye /api/, construir la URL completa
+  const finalUrl = `${IMAGE_BASE_URL}/api/images/${imageUrl}`;
+  console.log('getImageUrl: Built URL from filename:', imageUrl, '->', finalUrl);
+  return finalUrl;
+};
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -239,4 +269,3 @@ api.interceptors.response.use(
 );
 
 export default api;
-

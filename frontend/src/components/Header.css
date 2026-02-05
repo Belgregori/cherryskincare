@@ -1,6 +1,8 @@
 .main-header {
-  background: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -65,7 +67,9 @@
   top: 100%;
   left: 0;
   right: 0;
-  background: white;
+  background: rgba(255, 255, 255, 0.3) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   border-radius: var(--radius-md, clamp(8px, 1vw, 12px));
   min-width: min(200px, 90vw);
@@ -223,4 +227,3 @@
     min-width: 250px;
   }
 }
-

@@ -11,7 +11,7 @@
 
   color-scheme: light;
   color: #213547;
-  background-color: #ffffff;
+  background-color: transparent;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -27,6 +27,7 @@ body {
   min-width: 320px;
   min-height: 100vh;
   font-size: var(--font-size-base, 1rem);
+  background-color: transparent;
 }
 
 a {
@@ -56,4 +57,3 @@ button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
-
