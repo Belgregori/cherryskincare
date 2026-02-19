@@ -19,7 +19,6 @@ import Login from './pages/Login';
 const Register = lazy(() => import('./pages/Register'));
 const Products = lazy(() => import('./pages/Products'));
 const Categories = lazy(() => import('./pages/Categories'));
-const HowToUse = lazy(() => import('./pages/HowToUse'));
 const PaymentMethods = lazy(() => import('./pages/PaymentMethods'));
 const Shipping = lazy(() => import('./pages/Shipping'));
 const Contact = lazy(() => import('./pages/Contact'));
@@ -80,7 +79,6 @@ function App() {
                   <Route path="/reset-password" element={<ResetPassword />} />
                   <Route path="/products" element={<Products />} />
                   <Route path="/categories" element={<Categories />} />
-                  <Route path="/how-to-use" element={<HowToUse />} />
                   <Route path="/payment-methods" element={<PaymentMethods />} />
                   <Route path="/shipping" element={<Shipping />} />
                   <Route path="/contact" element={<Contact />} />

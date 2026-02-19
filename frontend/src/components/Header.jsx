@@ -61,11 +61,6 @@ function Header() {
                 Categorías
               </Link>
             </li>
-            <li role="none">
-              <Link to="/how-to-use" onClick={() => setIsMenuOpen(false)} role="menuitem">
-                ¿Cómo se usa?
-              </Link>
-            </li>
             {!isAuthenticated && (
               <li>
                 <Link to="/login" onClick={() => setIsMenuOpen(false)}>
