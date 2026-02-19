@@ -241,12 +241,189 @@ public class FileStorageService implements FileStorageServiceInterface {
         return "/api/images/" + filename;
     }
 
+    /**
+     * Almacena un archivo de categoría en la carpeta específica uploads/categories/
+     * 
+     * @param file El archivo a almacenar
+     * @return La URL relativa para acceder al archivo (/api/images/categories/{filename})
+     * @throws IOException Si hay un error al almacenar el archivo
+     */
+    public String storeCategoryFile(MultipartFile file) throws IOException {
+        // Validar que el archivo no esté vacío
+        if (file == null || file.isEmpty()) {
+            logger.warn("Intento de subir archivo vacío");
+            throw new IllegalArgumentException("El archivo no puede estar vacío");
+        }
+
+        // Validar tamaño mínimo
+        if (file.getSize() < MIN_FILE_SIZE) {
+            logger.warn("Intento de subir archivo muy pequeño: {} bytes", file.getSize());
+            throw new IllegalArgumentException("La imagen debe tener al menos 1KB");
+        }
+
+        // Validar tamaño máximo
+        if (file.getSize() > MAX_FILE_SIZE) {
+            logger.warn("Intento de subir archivo muy grande: {} bytes", file.getSize());
+            throw new IllegalArgumentException("La imagen no puede ser mayor a 2MB");
+        }
+
+        // Validar tipo MIME
+        String contentType = file.getContentType();
+        if (contentType == null) {
+            logger.warn("Intento de subir archivo sin tipo MIME");
+            throw new IllegalArgumentException("No se pudo determinar el tipo de archivo");
+        }
+
+        // Normalizar tipo MIME
+        contentType = contentType.toLowerCase();
+        if (contentType.equals("image/jpg")) {
+            contentType = "image/jpeg";
+        }
+
+        if (!ALLOWED_MIME_TYPES.contains(contentType)) {
+            logger.warn("Intento de subir archivo con tipo MIME no permitido: {}", contentType);
+            throw new IllegalArgumentException("Tipo de archivo no permitido. Solo se permiten imágenes JPG, PNG, GIF o WEBP");
+        }
+
+        // Validar y sanitizar nombre del archivo
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null || originalFilename.trim().isEmpty()) {
+            logger.warn("Intento de subir archivo sin nombre");
+            throw new IllegalArgumentException("El archivo debe tener un nombre válido");
+        }
+
+        // Sanitizar nombre del archivo
+        originalFilename = sanitizeFilename(originalFilename);
+        
+        // Validar que no contenga rutas relativas o absolutas (path traversal)
+        if (originalFilename.contains("..") || originalFilename.contains("/") || 
+            originalFilename.contains("\\") || originalFilename.contains(":") ||
+            originalFilename.startsWith(".")) {
+            logger.warn("Intento de subir archivo con nombre peligroso: {}", file.getOriginalFilename());
+            throw new IllegalArgumentException("El nombre del archivo contiene caracteres no permitidos");
+        }
+
+        // Extraer extensión de forma segura
+        String extension = "";
+        int lastDotIndex = originalFilename.lastIndexOf(".");
+        if (lastDotIndex > 0 && lastDotIndex < originalFilename.length() - 1) {
+            extension = originalFilename.substring(lastDotIndex).toLowerCase();
+        }
+
+        if (extension.isEmpty() || !ALLOWED_EXTENSIONS.contains(extension)) {
+            logger.warn("Intento de subir archivo con extensión no permitida: {}", extension);
+            throw new IllegalArgumentException("Extensión de archivo no permitida. Solo se permiten: .jpg, .jpeg, .png, .gif, .webp");
+        }
+
+        // Validar que la extensión coincida con el tipo MIME
+        if (!isExtensionMatchingMimeType(extension, contentType)) {
+            logger.warn("Extensión {} no coincide con tipo MIME {}", extension, contentType);
+            throw new IllegalArgumentException("La extensión del archivo no coincide con su tipo MIME");
+        }
+
+        // Validar firma mágica del archivo
+        String detectedMimeType = detectMimeTypeByMagicNumber(file);
+        if (detectedMimeType == null) {
+            logger.warn("No se pudo detectar el tipo de archivo mediante firma mágica");
+            throw new IllegalArgumentException("No se pudo verificar el tipo real del archivo. El archivo puede estar corrupto o no ser una imagen válida");
+        }
+
+        // Verificar que el tipo detectado por la firma mágica coincida con el Content-Type declarado
+        if (!detectedMimeType.equals(contentType)) {
+            logger.warn("Firma mágica detectada: {} no coincide con Content-Type declarado: {}", detectedMimeType, contentType);
+            throw new IllegalArgumentException("El tipo real del archivo no coincide con el tipo declarado. Posible intento de falsificación");
+        }
+
+        // Escanear archivo en busca de virus (si el servicio está habilitado)
+        if (virusScanService != null) {
+            try {
+                VirusScanService.ScanResult scanResult = virusScanService.scanFile(file);
+                if (!scanResult.isClean()) {
+                    logger.error("Archivo rechazado por escaneo antivirus: {} - {}", 
+                                file.getOriginalFilename(), scanResult.getMessage());
+                    throw new IllegalArgumentException("El archivo fue rechazado por el escaneo de seguridad: " + scanResult.getMessage());
+                }
+                logger.debug("Archivo escaneado exitosamente: {} - Motor: {}", 
+                            file.getOriginalFilename(), scanResult.getScanEngine());
+            } catch (VirusScanService.VirusDetectedException e) {
+                logger.error("Virus detectado en archivo: {} - {}", 
+                            file.getOriginalFilename(), e.getMessage());
+                throw new IllegalArgumentException("El archivo contiene malware y fue rechazado: " + e.getMessage());
+            } catch (Exception e) {
+                logger.error("Error al escanear archivo: {}", e.getMessage());
+                boolean rejectOnScanError = Boolean.parseBoolean(
+                    System.getProperty("virus.scan.reject-on-error", "true"));
+                if (rejectOnScanError) {
+                    throw new IOException("Error al verificar la seguridad del archivo. Intente nuevamente.");
+                }
+            }
+        }
+
+        // Crear directorio específico para categorías si no existe
+        // uploadDir es "uploads/images", entonces categoriesDir será "uploads/categories"
+        Path uploadPath = Paths.get(uploadDir);
+        Path categoriesDir = uploadPath.getParent() != null 
+            ? uploadPath.getParent().resolve("categories")
+            : Paths.get("uploads/categories");
+        
+        if (!Files.exists(categoriesDir)) {
+            Files.createDirectories(categoriesDir);
+        }
+
+        // Generar nombre único y seguro para el archivo
+        String uuid = UUID.randomUUID().toString().replace("-", "");
+        String filename = uuid + extension;
+        
+        // Validar longitud máxima del nombre
+        final int MAX_FILENAME_LENGTH = 50;
+        if (filename.length() > MAX_FILENAME_LENGTH) {
+            int maxUuidLength = MAX_FILENAME_LENGTH - extension.length();
+            filename = uuid.substring(0, Math.min(uuid.length(), maxUuidLength)) + extension;
+        }
+        
+        // Validación final
+        if (!filename.matches("^[a-fA-F0-9]{1,45}\\.[a-z]{3,4}$")) {
+            logger.error("Error generando nombre de archivo seguro: {}", filename);
+            throw new IOException("Error al generar nombre de archivo seguro");
+        }
+
+        // Guardar archivo en la carpeta de categorías
+        Path filePath = categoriesDir.resolve(filename);
+        
+        // Validación adicional: asegurar que el path resuelto no escape del directorio
+        Path normalizedPath = filePath.normalize();
+        if (!normalizedPath.startsWith(categoriesDir.normalize())) {
+            logger.warn("Intento de path traversal detectado: {}", filename);
+            throw new IllegalArgumentException("Ruta de archivo inválida");
+        }
+        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+        // Retornar la URL relativa con prefijo categories
+        return "/api/images/categories/" + filename;
+    }
+
     public void deleteFile(String imageUrl) throws IOException {
         if (imageUrl != null && imageUrl.startsWith("/api/images/")) {
-            String filename = imageUrl.substring("/api/images/".length());
-            Path filePath = Paths.get(uploadDir).resolve(filename);
-            if (Files.exists(filePath)) {
-                Files.delete(filePath);
+            String pathPart = imageUrl.substring("/api/images/".length());
+            
+            // Manejar imágenes de categorías (formato: categories/{filename})
+            if (pathPart.startsWith("categories/")) {
+                String filename = pathPart.substring("categories/".length());
+                Path uploadPath = Paths.get(uploadDir);
+                Path categoriesDir = uploadPath.getParent() != null 
+                    ? uploadPath.getParent().resolve("categories")
+                    : Paths.get("uploads/categories");
+                Path filePath = categoriesDir.resolve(filename);
+                if (Files.exists(filePath)) {
+                    Files.delete(filePath);
+                }
+            } else {
+                // Imágenes normales (productos)
+                String filename = pathPart;
+                Path filePath = Paths.get(uploadDir).resolve(filename);
+                if (Files.exists(filePath)) {
+                    Files.delete(filePath);
+                }
             }
         }
     }
@@ -259,6 +436,33 @@ public class FileStorageService implements FileStorageServiceInterface {
         Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
         Path filePath = uploadPath.resolve(filename).normalize();
         if (!filePath.startsWith(uploadPath)) {
+            throw new IllegalArgumentException("Ruta de archivo inválida");
+        }
+
+        return filePath;
+    }
+
+    /**
+     * Carga un archivo de categoría desde la carpeta uploads/categories/
+     * 
+     * @param filename Nombre del archivo
+     * @return Path al archivo
+     * @throws IllegalArgumentException Si el nombre de archivo es inválido
+     */
+    public Path loadCategoryFile(String filename) {
+        if (filename == null || filename.trim().isEmpty()) {
+            throw new IllegalArgumentException("Nombre de archivo inválido");
+        }
+
+        // Obtener el directorio de categorías (misma lógica que en storeCategoryFile)
+        Path uploadPath = Paths.get(uploadDir);
+        Path categoriesDir = uploadPath.getParent() != null 
+            ? uploadPath.getParent().resolve("categories")
+            : Paths.get("uploads/categories");
+        
+        Path categoriesPath = categoriesDir.toAbsolutePath().normalize();
+        Path filePath = categoriesPath.resolve(filename).normalize();
+        if (!filePath.startsWith(categoriesPath)) {
             throw new IllegalArgumentException("Ruta de archivo inválida");
         }
 

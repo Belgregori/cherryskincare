@@ -75,12 +75,13 @@ function Register() {
     <div className="register-page">
       <Header />
       <div className="register-container">
-        <div className="register-header">
-          <h1>Crear Cuenta</h1>
-          <p>Registrate para comenzar</p>
-        </div>
+        <div className="register-content-wrapper">
+          <div className="register-header">
+            <h1>Crear Cuenta</h1>
+            <p>Registrate para comenzar</p>
+          </div>
 
-        <form onSubmit={handleSubmit} className="register-form">
+          <form onSubmit={handleSubmit} className="register-form">
           {error && <div className="error-message">{error}</div>}
 
           <div className="form-group">
@@ -159,6 +160,7 @@ function Register() {
             <p>¿Ya tenés cuenta? <Link to="/login">Iniciar Sesión</Link></p>
           </div>
         </form>
+        </div>
       </div>
       <Footer />
     </div>

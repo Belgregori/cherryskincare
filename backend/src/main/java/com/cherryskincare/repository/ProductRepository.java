@@ -18,6 +18,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByCategory(String category);
     List<Product> findByIsActiveTrue();
     List<Product> findByCategoryAndIsActiveTrue(String category);
+    long countByCategoryAndIsActiveTrue(String category);
+    @Query("SELECT COUNT(p) FROM Product p WHERE UPPER(p.category) = UPPER(:category) AND p.isActive = true")
+    long countByCategoryIgnoreCaseAndIsActiveTrue(@Param("category") String category);
     List<Product> findByNameContainingIgnoreCase(String name);
     
     // Métodos paginados

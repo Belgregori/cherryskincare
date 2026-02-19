@@ -78,8 +78,10 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/login", "/api/auth/verify", "/api/auth/refresh", 
                                  "/api/auth/forgot-password", "/api/auth/reset-password").permitAll()
                 .requestMatchers("/api/products/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/categories").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/images/**").permitAll()
                 .requestMatchers("/api/images/upload").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/images/categories/**").permitAll()
                 .requestMatchers("/api/users/register").permitAll()
                 // Swagger UI y documentación OpenAPI
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/api-docs/**", "/v3/api-docs/**").permitAll()
@@ -88,7 +90,13 @@ public class SecurityConfig {
                 .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                 .requestMatchers("/actuator/**").hasRole("ADMIN")
                 
-                // Endpoints de admin - requieren rol ADMIN
+                // Permitir ver categorías de forma pública usando el mismo endpoint que el panel admin
+                // IMPORTANTE: Esta regla específica debe ir ANTES de la regla general /api/admin/**
+                // Permite GET a /api/admin/categories y todas sus variantes (con o sin ID)
+                .requestMatchers(HttpMethod.GET, "/api/admin/categories", "/api/admin/categories/**").permitAll()
+                
+                // Endpoints de admin - requieren rol ADMIN (regla general al final)
+                // NOTA: POST, PUT, DELETE de /api/admin/categories siguen requiriendo ADMIN
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 
                 // Endpoints protegidos - requieren autenticación (cualquier usuario autenticado)

@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
-import api from '../../services/api';
-import { productService } from '../../services/productService';
+import { useState, useEffect, useMemo } from 'react';
+import api, { IMAGE_BASE_URL } from '../../services/api';
 import './AddProduct.css';
 
 function AddProduct({ onSuccess }) {
@@ -17,27 +16,48 @@ function AddProduct({ onSuccess }) {
   const [message, setMessage] = useState({ type: '', text: '' });
   const [categories, setCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
+  
+  // Estados para gestión de categorías
+  const [showCategorySection, setShowCategorySection] = useState(false);
+  const [editingCategoryId, setEditingCategoryId] = useState(null);
+  const [categoryFormData, setCategoryFormData] = useState({
+    name: '',
+    displayOrder: 0
+  });
+  const [categoryImage, setCategoryImage] = useState(null);
+  const [categoryPreview, setCategoryPreview] = useState(null);
+  const [categoryCurrentImageUrl, setCategoryCurrentImageUrl] = useState(null);
+  const [savingCategory, setSavingCategory] = useState(false);
 
-  // Cargar categorías al montar el componente
+  // Cargar categorías al montar - EXACTAMENTE como OrderList
   useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        setLoadingCategories(true);
-        const categoriesData = await productService.getCategories();
-        setCategories(categoriesData);
-      } catch (error) {
-        console.error('Error al cargar categorías:', error);
-        setMessage({ 
-          type: 'error', 
-          text: 'Error al cargar las categorías. Por favor, recarga la página.' 
-        });
-      } finally {
-        setLoadingCategories(false);
-      }
-    };
-
     loadCategories();
   }, []);
+
+  // Auto-ocultar mensajes después de 4 segundos
+  useEffect(() => {
+    if (message.text) {
+      const timer = setTimeout(() => {
+        setMessage({ type: '', text: '' });
+      }, 4000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [message.text]);
+
+  const loadCategories = async () => {
+    try {
+      setLoadingCategories(true);
+      const response = await api.get('/admin/categories');
+      const categoriesData = Array.isArray(response.data) ? response.data : [];
+      setCategories(categoriesData);
+    } catch (err) {
+      console.error('Error al cargar categorías:', err);
+      setCategories([]);
+    } finally {
+      setLoadingCategories(false);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -50,13 +70,11 @@ function AddProduct({ onSuccess }) {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Validar tipo de archivo
       if (!file.type.startsWith('image/')) {
         setMessage({ type: 'error', text: 'Por favor selecciona un archivo de imagen' });
         return;
       }
 
-      // Validar tamaño (5MB)
       if (file.size > 5 * 1024 * 1024) {
         setMessage({ type: 'error', text: 'La imagen no debe superar los 5MB' });
         return;
@@ -64,12 +82,158 @@ function AddProduct({ onSuccess }) {
 
       setFormData(prev => ({ ...prev, image: file }));
 
-      // Crear preview
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreview(reader.result);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  // Handlers para categorías
+  const handleCategoryInputChange = (e) => {
+    const { name, value } = e.target;
+    setCategoryFormData(prev => ({
+      ...prev,
+      [name]: name === 'displayOrder' ? parseInt(value, 10) || 0 : value
+    }));
+  };
+
+  const handleCategoryImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        setMessage({ type: 'error', text: 'Por favor selecciona un archivo de imagen' });
+        return;
+      }
+
+      if (file.size > 2 * 1024 * 1024) {
+        setMessage({ type: 'error', text: 'La imagen no debe superar los 2MB' });
+        return;
+      }
+
+      setCategoryImage(file);
+      setCategoryCurrentImageUrl(null);
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCategoryPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleEditCategory = (category) => {
+    setEditingCategoryId(category.id);
+    setCategoryFormData({
+      name: category.name || '',
+      displayOrder: category.displayOrder ?? 0
+    });
+    setCategoryCurrentImageUrl(category.imageUrl || null);
+    setCategoryPreview(null);
+    setCategoryImage(null);
+    setShowCategorySection(true);
+  };
+
+  const handleCancelCategoryEdit = () => {
+    setEditingCategoryId(null);
+    setCategoryFormData({ name: '', displayOrder: 0 });
+    setCategoryImage(null);
+    setCategoryPreview(null);
+    setCategoryCurrentImageUrl(null);
+  };
+
+  const handleSaveCategory = async () => {
+    const trimmedName = categoryFormData.name?.trim();
+    if (!trimmedName) {
+      setMessage({ type: 'error', text: 'El nombre de la categoría es obligatorio' });
+      return;
+    }
+
+    setSavingCategory(true);
+    setMessage({ type: '', text: '' });
+
+    try {
+      let savedCategory;
+
+      if (editingCategoryId) {
+        const categoryData = {
+          name: trimmedName.toUpperCase(),
+          displayOrder: categoryFormData.displayOrder || 0,
+          imageUrl: categoryCurrentImageUrl
+        };
+
+        await api.put(`/admin/categories/${editingCategoryId}`, categoryData);
+        savedCategory = { id: editingCategoryId, ...categoryData };
+
+        if (categoryImage) {
+          const formDataImage = new FormData();
+          formDataImage.append('file', categoryImage);
+
+          const imageResponse = await api.post(`/admin/categories/${editingCategoryId}/image`, formDataImage, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          });
+          savedCategory.imageUrl = imageResponse.data?.imageUrl || imageResponse.data;
+        }
+      } else {
+        const categoryData = {
+          name: trimmedName.toUpperCase(),
+          displayOrder: categoryFormData.displayOrder || 0
+        };
+
+        const createResponse = await api.post('/admin/categories', categoryData);
+        savedCategory = createResponse.data;
+
+        if (categoryImage) {
+          const formDataImage = new FormData();
+          formDataImage.append('file', categoryImage);
+
+          const imageResponse = await api.post(`/admin/categories/${savedCategory.id}/image`, formDataImage, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          });
+          savedCategory.imageUrl = imageResponse.data?.imageUrl || imageResponse.data;
+        }
+      }
+
+      setMessage({ type: 'success', text: editingCategoryId ? 'Categoría actualizada exitosamente!' : 'Categoría creada exitosamente!' });
+      
+      await loadCategories();
+      
+      setFormData(prev => ({ ...prev, category: savedCategory.name }));
+      
+      handleCancelCategoryEdit();
+    } catch (error) {
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.error || (editingCategoryId ? 'Error al actualizar la categoría' : 'Error al crear la categoría')
+      });
+    } finally {
+      setSavingCategory(false);
+    }
+  };
+
+  const handleDeleteCategory = async (id, name) => {
+    if (!window.confirm(`¿Estás seguro de que quieres eliminar la categoría "${name}"?`)) {
+      return;
+    }
+
+    try {
+      await api.delete(`/admin/categories/${id}`);
+      setMessage({ type: 'success', text: 'Categoría eliminada exitosamente!' });
+      await loadCategories();
+      
+      if (formData.category === name) {
+        setFormData(prev => ({ ...prev, category: '' }));
+      }
+    } catch (error) {
+      const msg = error.response?.status === 409
+        ? (error.response?.data?.error || 'No se puede eliminar: tiene productos asociados.')
+        : (error.response?.data?.error || 'Error al eliminar la categoría.');
+      setMessage({ type: 'error', text: msg });
     }
   };
 
@@ -79,7 +243,6 @@ function AddProduct({ onSuccess }) {
     setLoading(true);
 
     try {
-      // Primero crear el producto
       const productData = {
         name: formData.name,
         description: formData.description,
@@ -92,7 +255,6 @@ function AddProduct({ onSuccess }) {
       const productResponse = await api.post('/admin/products', productData);
       const productId = productResponse.data.id;
 
-      // Si hay imagen, subirla
       if (formData.image) {
         const formDataImage = new FormData();
         formDataImage.append('file', formData.image);
@@ -106,7 +268,6 @@ function AddProduct({ onSuccess }) {
 
       setMessage({ type: 'success', text: 'Producto agregado exitosamente!' });
       
-      // Limpiar formulario
       setFormData({
         name: '',
         description: '',
@@ -118,7 +279,6 @@ function AddProduct({ onSuccess }) {
       setPreview(null);
       e.target.reset();
 
-      // Si hay callback onSuccess, llamarlo después de un breve delay
       if (onSuccess) {
         setTimeout(() => {
           onSuccess();
@@ -135,6 +295,12 @@ function AddProduct({ onSuccess }) {
     }
   };
 
+  const categoryDisplayImage = useMemo(() => {
+    if (categoryPreview) return categoryPreview;
+    if (categoryCurrentImageUrl) return `${IMAGE_BASE_URL}${categoryCurrentImageUrl}`;
+    return null;
+  }, [categoryPreview, categoryCurrentImageUrl]);
+
   return (
     <div className="add-product-container">
       <h2>Agregar Nuevo Producto</h2>
@@ -144,6 +310,149 @@ function AddProduct({ onSuccess }) {
           {message.text}
         </div>
       )}
+
+      {/* Sección de Gestión de Categorías */}
+      <div className="category-management-section">
+        <button
+          type="button"
+          className="category-section-toggle"
+          onClick={() => setShowCategorySection(!showCategorySection)}
+        >
+          {showCategorySection ? '▼' : '▶'} Agregar Categoría
+        </button>
+
+        {showCategorySection && (
+          <div className="category-section-content">
+            <h3>{editingCategoryId ? 'Editar Categoría' : 'Nueva Categoría'}</h3>
+            
+            <div className="category-form-row">
+              <div className="form-group">
+                <label htmlFor="category-name">Nombre de la Categoría *</label>
+                <input
+                  type="text"
+                  id="category-name"
+                  name="name"
+                  value={categoryFormData.name}
+                  onChange={handleCategoryInputChange}
+                  required
+                  placeholder="Ej: SKINCARE"
+                  maxLength={100}
+                />
+                <small>Se guardará en mayúsculas</small>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="category-order">Orden de Visualización</label>
+                <input
+                  type="number"
+                  id="category-order"
+                  name="displayOrder"
+                  value={categoryFormData.displayOrder}
+                  onChange={handleCategoryInputChange}
+                  min="0"
+                  placeholder="0"
+                />
+                <small>Número menor = aparece primero</small>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="category-image">Imagen de la Categoría</label>
+              <input
+                type="file"
+                id="category-image"
+                accept="image/*"
+                onChange={handleCategoryImageChange}
+              />
+              {categoryDisplayImage && (
+                <div className="image-preview" style={{ marginTop: '1rem' }}>
+                  <img src={categoryDisplayImage} alt="Preview categoría" />
+                </div>
+              )}
+              <small>Opcional. Máx. 2MB</small>
+            </div>
+
+            <div className="category-form-actions">
+              <button
+                type="button"
+                className="submit-button"
+                onClick={handleSaveCategory}
+                disabled={savingCategory}
+                style={{ marginTop: '0' }}
+              >
+                {savingCategory ? 'Guardando...' : (editingCategoryId ? 'Guardar Cambios' : 'Crear Categoría')}
+              </button>
+              {editingCategoryId && (
+                <button
+                  type="button"
+                  className="cancel-button"
+                  onClick={handleCancelCategoryEdit}
+                  disabled={savingCategory}
+                >
+                  Cancelar Edición
+                </button>
+              )}
+            </div>
+
+            {/* Lista de categorías existentes - RENDERIZADO CONDICIONAL IGUAL A PRODUCTLIST */}
+            {categories.length > 0 && (
+              <div className="existing-categories">
+                <h4>Categorías Existentes</h4>
+                <div className="categories-grid">
+                  {categories.map((cat) => (
+                    <div key={cat.id || cat.name} className="category-card">
+                      <div className="category-card-image">
+                        {cat.imageUrl ? (
+                          <img 
+                            src={`${IMAGE_BASE_URL}${cat.imageUrl}`}
+                            alt={cat.name}
+                            className="category-thumbnail"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.style.display = 'none';
+                              const parent = e.target.parentElement;
+                              if (parent) {
+                                const existingNoImage = parent.querySelector('.no-image');
+                                if (!existingNoImage) {
+                                  const noImageDiv = document.createElement('div');
+                                  noImageDiv.className = 'no-image';
+                                  noImageDiv.textContent = 'Sin imagen';
+                                  parent.appendChild(noImageDiv);
+                                }
+                              }
+                            }}
+                          />
+                        ) : (
+                          <div className="no-image">Sin imagen</div>
+                        )}
+                      </div>
+                      <div className="category-card-info">
+                        <strong>{cat.name}</strong>
+                      </div>
+                      <div className="category-card-actions">
+                        <button
+                          type="button"
+                          className="edit-category-btn"
+                          onClick={() => handleEditCategory(cat)}
+                        >
+                          Editar
+                        </button>
+                        <button
+                          type="button"
+                          className="delete-category-btn"
+                          onClick={() => handleDeleteCategory(cat.id, cat.name)}
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       <form onSubmit={handleSubmit} className="add-product-form">
         <div className="form-row">
@@ -182,15 +491,15 @@ function AddProduct({ onSuccess }) {
               >
                 <option value="">Selecciona una categoría</option>
                 {categories.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
+                  <option key={category.id || category.name} value={category.name}>
+                    {category.name}
                   </option>
                 ))}
               </select>
             )}
             {categories.length > 0 && (
               <small className="category-info">
-                Categorías disponibles: {categories.join(', ')}
+                Categorías disponibles: {categories.map(c => c.name).join(', ')}
               </small>
             )}
           </div>
@@ -264,4 +573,3 @@ function AddProduct({ onSuccess }) {
 }
 
 export default AddProduct;
-

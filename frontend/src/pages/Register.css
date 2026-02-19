@@ -1,20 +1,33 @@
 .register-page {
   min-height: 100vh;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: transparent;
-  padding: var(--container-padding, clamp(1rem, 4vw, 2rem));
+  flex-direction: column;
+  background-color: transparent !important;
   width: 100%;
+  position: relative;
+  z-index: 1;
 }
 
 .register-container {
-  background: white;
-  border-radius: var(--radius-lg, clamp(12px, 1.5vw, 16px));
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-  padding: var(--spacing-lg, clamp(1.5rem, 3vw, 2.5rem));
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(2rem, 4vw, 3rem);
+  width: 100%;
+  min-height: calc(100vh - 200px);
+}
+
+.register-content-wrapper {
+  background: white !important;
+  border-radius: clamp(12px, 1.5vw, 16px);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1) !important;
+  padding: clamp(1.5rem, 3vw, 2.5rem);
   width: 100%;
   max-width: min(500px, 90vw);
+  position: relative;
+  z-index: 1;
 }
 
 .register-header {
@@ -44,6 +57,7 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  width: 100%;
 }
 
 .form-group {
@@ -64,6 +78,7 @@
   border-radius: 8px;
   font-size: 1rem;
   transition: border-color 0.2s ease;
+  width: 100%;
 }
 
 .form-group input:focus {
@@ -105,6 +120,7 @@
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   margin-top: 0.5rem;
+  width: 100%;
 }
 
 .register-button:hover:not(:disabled) {
@@ -142,6 +158,10 @@
 
 @media (max-width: 575.98px) {
   .register-container {
+    padding: var(--spacing-md, clamp(1rem, 2vw, 1.5rem));
+  }
+
+  .register-content-wrapper {
     padding: var(--spacing-md, clamp(1rem, 2vw, 1.5rem));
   }
 

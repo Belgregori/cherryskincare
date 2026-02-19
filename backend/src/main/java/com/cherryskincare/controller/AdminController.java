@@ -3,8 +3,10 @@ package com.cherryskincare.controller;
 import com.cherryskincare.dto.AdminOrderDTO;
 import com.cherryskincare.dto.AdminProductDTO;
 import com.cherryskincare.dto.AdminUserDTO;
+import com.cherryskincare.dto.CategoryDTO;
 import com.cherryskincare.model.Order;
 import com.cherryskincare.service.AdminService;
+import com.cherryskincare.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -31,6 +33,9 @@ public class AdminController {
 
     @Autowired
     private com.cherryskincare.service.ProductService productService;
+
+    @Autowired
+    private CategoryService categoryService;
 
     // ========== GESTIÓN DE PRODUCTOS ==========
 
@@ -122,6 +127,72 @@ public class AdminController {
             @RequestParam("file") MultipartFile file) {
         try {
             String imageUrl = productService.uploadProductImage(id, file);
+            return ResponseEntity.ok().body(new ImageResponse(imageUrl));
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // ========== GESTIÓN DE CATEGORÍAS ==========
+
+    @Operation(summary = "Listar categorías (Admin)")
+    @GetMapping("/categories")
+    public ResponseEntity<List<CategoryDTO>> getAllCategories() {
+        return ResponseEntity.ok(categoryService.findAll());
+    }
+
+    @Operation(summary = "Obtener categoría por ID (Admin)")
+    @GetMapping("/categories/{id}")
+    public ResponseEntity<CategoryDTO> getCategoryById(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(categoryService.findById(id));
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @Operation(summary = "Crear categoría (Admin)")
+    @PostMapping("/categories")
+    public ResponseEntity<?> createCategory(@RequestBody CategoryDTO dto) {
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.create(dto));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(java.util.Map.of("error", e.getMessage()));
+        }
+    }
+
+    @Operation(summary = "Actualizar categoría (Admin)")
+    @PutMapping("/categories/{id}")
+    public ResponseEntity<?> updateCategory(@PathVariable Long id, @RequestBody CategoryDTO dto) {
+        try {
+            return ResponseEntity.ok(categoryService.update(id, dto));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(java.util.Map.of("error", e.getMessage()));
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @Operation(summary = "Eliminar categoría (Admin)")
+    @DeleteMapping("/categories/{id}")
+    public ResponseEntity<?> deleteCategory(@PathVariable Long id) {
+        try {
+            categoryService.delete(id);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(java.util.Map.of("error", e.getMessage()));
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @Operation(summary = "Subir imagen de categoría (Admin)")
+    @PostMapping("/categories/{id}/image")
+    public ResponseEntity<?> uploadCategoryImage(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
+        try {
+            String imageUrl = categoryService.uploadImage(id, file);
             return ResponseEntity.ok().body(new ImageResponse(imageUrl));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();

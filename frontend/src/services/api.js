@@ -19,20 +19,23 @@ export const getImageUrl = (imageUrl) => {
   
   // Si imageUrl ya es una URL completa (http:// o https://), retornarla tal cual
   if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
-    console.log('getImageUrl: Already full URL:', imageUrl);
     return imageUrl;
   }
   
-  // Si imageUrl ya incluye /api/, agregar IMAGE_BASE_URL al inicio
-  if (imageUrl.startsWith('/api/')) {
+  // Si imageUrl ya incluye /api/images/, agregar IMAGE_BASE_URL al inicio
+  if (imageUrl.startsWith('/api/images/')) {
     const finalUrl = `${IMAGE_BASE_URL}${imageUrl}`;
-    console.log('getImageUrl: Built URL from /api/ path:', imageUrl, '->', finalUrl);
     return finalUrl;
   }
   
-  // Si imageUrl no incluye /api/, construir la URL completa
+  // Si imageUrl solo incluye /api/ pero no /images/, agregar IMAGE_BASE_URL
+  if (imageUrl.startsWith('/api/')) {
+    const finalUrl = `${IMAGE_BASE_URL}${imageUrl}`;
+    return finalUrl;
+  }
+  
+  // Si imageUrl es solo el filename (sin /api/), construir la URL completa
   const finalUrl = `${IMAGE_BASE_URL}/api/images/${imageUrl}`;
-  console.log('getImageUrl: Built URL from filename:', imageUrl, '->', finalUrl);
   return finalUrl;
 };
 

@@ -1,7 +1,9 @@
 package com.cherryskincare.controller;
 
+import com.cherryskincare.dto.CategoryDTO;
 import com.cherryskincare.dto.PageResponseDTO;
 import com.cherryskincare.dto.ProductDTO;
+import com.cherryskincare.service.CategoryService;
 import com.cherryskincare.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Collections;
 
 @RestController
 @RequestMapping("/api/products")
@@ -25,25 +28,38 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
+    @Autowired
+    private CategoryService categoryService;
+
     @Operation(
-            summary = "Obtener categorías disponibles",
-            description = "Retorna la lista de categorías válidas para los productos"
+            summary = "Obtener todas las categorías públicas",
+            description = "Retorna la lista completa de categorías con sus imágenes y detalles para usuarios públicos"
     )
     @ApiResponse(
             responseCode = "200",
             description = "Lista de categorías obtenida exitosamente"
     )
     @GetMapping("/categories")
-    public ResponseEntity<List<String>> getCategories() {
-        List<String> categories = List.of(
-            "MAQUILLAJE",
-            "SKINCARE",
-            "COMPLEMENTOS",
-            "ACCCESORIOS PARA EL PELO",
-            "NECESER Y BOLSOS",
-            "VELAS AROMATICAS"
-        );
-        return ResponseEntity.ok(categories);
+    @ResponseBody
+    public ResponseEntity<List<CategoryDTO>> getCategories() {
+        List<CategoryDTO> categories = categoryService.findAll();
+        System.out.println("=== ProductController.getCategories() ===");
+        System.out.println("Categorías retornadas del servicio: " + categories.size());
+        
+        if (!categories.isEmpty()) {
+            System.out.println("Tipo de la lista: " + categories.get(0).getClass().getName());
+            categories.forEach(cat -> {
+                System.out.println("  - Objeto completo: ID=" + cat.getId() + 
+                    " | Name=" + cat.getName() + 
+                    " | ImageUrl=" + cat.getImageUrl() + 
+                    " | DisplayOrder=" + cat.getDisplayOrder() + 
+                    " | ProductCount=" + cat.getProductCount());
+            });
+        }
+        
+        return ResponseEntity.ok()
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .body(categories);
     }
 
     @Operation(

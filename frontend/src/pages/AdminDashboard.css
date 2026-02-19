@@ -2,6 +2,8 @@
   display: flex;
   min-height: 100vh;
   background: #f5f5f5;
+  position: relative;
+  overflow-x: hidden;
 }
 
 .admin-sidebar {
@@ -50,7 +52,7 @@
   cursor: pointer;
   font-size: 1rem;
   color: #333;
-  transition: all 0.2s ease;
+  transition: background-color 0.15s ease, color 0.15s ease, border-left-color 0.15s ease;
   border-left: 3px solid transparent;
 }
 
@@ -76,7 +78,7 @@
   cursor: pointer;
   font-size: 1rem;
   font-weight: 500;
-  transition: background 0.2s ease;
+  transition: background-color 0.15s ease;
 }
 
 .logout-button:hover {
@@ -88,6 +90,9 @@
   margin-left: 0;
   padding: var(--container-padding, clamp(1rem, 4vw, 2rem));
   width: 100%;
+  min-height: 100vh;
+  background: #f5f5f5;
+  position: relative;
 }
 
 @media (min-width: 992px) {
@@ -99,6 +104,18 @@
 .admin-content {
   max-width: 1200px;
   margin: 0 auto;
+  min-height: calc(100vh - 2rem);
+  background: transparent;
+  position: relative;
+  contain: layout style paint;
+}
+
+/* Contenedor wrapper para cada sección - previene layout shift */
+.admin-content > * {
+  min-height: 400px;
+  background: transparent;
+  contain: layout style paint;
+  position: relative;
 }
 
 @media (max-width: 991.98px) {
@@ -111,7 +128,16 @@
 
   .admin-main {
     margin-left: 0;
-    padding: var(--container-padding, clamp(1rem, 4vw, 2rem));
+    padding: var(--container-padding, clamp(1rem, 2vw, 1.5rem));
+    min-height: auto;
+  }
+
+  .admin-content {
+    min-height: auto;
+  }
+
+  .admin-content > * {
+    min-height: 300px;
   }
 }
 
@@ -131,4 +157,29 @@
   }
 }
 
+/* Mensaje de bienvenida cuando no hay sección activa */
+.admin-welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 500px;
+  background: white;
+  border-radius: 8px;
+  padding: 3rem 2rem;
+  text-align: center;
+  contain: layout style paint;
+}
 
+.admin-welcome h2 {
+  color: #C94A5A;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.admin-welcome p {
+  color: #666;
+  font-size: 1.1rem;
+  margin: 0;
+}

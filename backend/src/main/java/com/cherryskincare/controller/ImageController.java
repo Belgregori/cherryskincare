@@ -33,6 +33,54 @@ public class ImageController {
     }
 
     /**
+     * Obtiene una imagen de categoría por su nombre de archivo.
+     * 
+     * NOTA DE SEGURIDAD:
+     * - Las rutas no son predecibles (usamos UUIDs)
+     * - Se valida path traversal en FileStorageService.loadCategoryFile()
+     * - El acceso está permitido públicamente para imágenes de categorías
+     * 
+     * @param filename Nombre del archivo (UUID + extensión)
+     * @return La imagen como recurso
+     */
+    @GetMapping("/categories/{filename:.+}")
+    public ResponseEntity<Resource> getCategoryImage(@PathVariable String filename) {
+        try {
+            // Validación adicional de seguridad
+            if (filename == null || filename.trim().isEmpty() || filename.length() > 50) {
+                return ResponseEntity.badRequest().build();
+            }
+            
+            // Validar formato del filename
+            if (!filename.matches("^[a-fA-F0-9]{32}\\.[a-z]{3,4}$")) {
+                org.slf4j.LoggerFactory.getLogger(ImageController.class)
+                    .warn("Intento de acceso a imagen de categoría con formato inválido: {}", filename);
+                return ResponseEntity.badRequest().build();
+            }
+            
+            Path filePath = fileStorageService.loadCategoryFile(filename);
+            Resource resource = new UrlResource(filePath.toUri());
+
+            if (resource.exists() && resource.isReadable()) {
+                String contentType = Files.probeContentType(filePath);
+                MediaType mediaType = contentType != null ? MediaType.parseMediaType(contentType) : MediaType.APPLICATION_OCTET_STREAM;
+                
+                return ResponseEntity.ok()
+                        .contentType(mediaType)
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + sanitizeFilenameForHeader(resource.getFilename()) + "\"")
+                        .header("X-Content-Type-Options", "nosniff")
+                        .body(resource);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    /**
      * Obtiene una imagen por su nombre de archivo.
      * 
      * NOTA DE SEGURIDAD:
@@ -47,17 +95,23 @@ public class ImageController {
     @GetMapping("/{filename:.+}")
     public ResponseEntity<Resource> getImage(@PathVariable String filename) {
         try {
-            // Validación adicional de seguridad: asegurar que el filename tiene formato válido
-            // Formato esperado: UUID sin guiones (32 chars hex) + extensión
-            if (filename == null || filename.trim().isEmpty() || filename.length() > 50) {
+            // Validación adicional de seguridad
+            if (filename == null || filename.trim().isEmpty() || filename.length() > 255) {
                 return ResponseEntity.badRequest().build();
             }
             
-            // Validar que el filename solo contiene caracteres alfanuméricos y punto
-            if (!filename.matches("^[a-fA-F0-9]{32}\\.[a-z]{3,4}$")) {
-                // Log de intento de acceso con formato inválido (posible ataque)
+            // Validar que el filename solo contiene caracteres alfanuméricos, guiones, guiones bajos y punto
+            // Acepta tanto UUIDs (32 chars hex) como nombres normales (ej: maquillaje.png)
+            if (!filename.matches("^[a-zA-Z0-9._-]+\\.[a-z]{3,4}$")) {
                 org.slf4j.LoggerFactory.getLogger(ImageController.class)
                     .warn("Intento de acceso a imagen con formato inválido: {}", filename);
+                return ResponseEntity.badRequest().build();
+            }
+            
+            // Validar path traversal - asegurar que no contiene .. o /
+            if (filename.contains("..") || filename.contains("/") || filename.contains("\\")) {
+                org.slf4j.LoggerFactory.getLogger(ImageController.class)
+                    .warn("Intento de path traversal detectado: {}", filename);
                 return ResponseEntity.badRequest().build();
             }
             
