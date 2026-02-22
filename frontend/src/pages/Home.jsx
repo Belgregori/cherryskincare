@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { productService } from '../services/productService';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -9,12 +10,29 @@ import './Home.css';
 
 function Home() {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadProducts();
+    loadCategories();
   }, []);
+
+  const loadCategories = async () => {
+    try {
+      const data = await productService.getCategories();
+      const list = Array.isArray(data) ? data : [];
+      const normalized = list.length > 0 && typeof list[0] === 'string'
+        ? list.map((name, i) => ({ id: i + 1, name, imageUrl: null }))
+        : list;
+      setCategories(normalized);
+    } catch (err) {
+      console.error('Error al cargar categorías:', err);
+      setCategories([]);
+    }
+  };
 
   const loadProducts = async () => {
     try {
@@ -93,6 +111,54 @@ function Home() {
               }))
             }
           />
+        </section>
+
+        <section className="home-categories-section">
+          <h2 className="home-categories-title">Categorías</h2>
+          {categories.length > 0 ? (
+            <div className="home-categories-grid">
+              {categories.map((cat) => (
+                <div
+                  key={cat.id || cat.name}
+                  className="home-category-card"
+                  onClick={() => navigate(`/products?category=${encodeURIComponent(cat.name)}`)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      navigate(`/products?category=${encodeURIComponent(cat.name)}`);
+                    }
+                  }}
+                >
+                  <div className="home-category-card-image">
+                    {cat.imageUrl ? (
+                      <img
+                        src={getImageUrl(cat.imageUrl)}
+                        alt={cat.name}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.style.display = 'none';
+                          const parent = e.target.parentElement;
+                          if (parent && !parent.querySelector('.home-category-no-image')) {
+                            const div = document.createElement('div');
+                            div.className = 'home-category-no-image';
+                            div.textContent = 'Sin imagen';
+                            parent.appendChild(div);
+                          }
+                        }}
+                      />
+                    ) : (
+                      <div className="home-category-no-image">Sin imagen</div>
+                    )}
+                  </div>
+                  <div className="home-category-card-info">
+                    <span>{cat.name}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : null}
         </section>
 
         <section className="products-section">

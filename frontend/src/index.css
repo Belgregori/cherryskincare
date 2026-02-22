@@ -28,6 +28,7 @@ body {
   min-height: 100vh;
   font-size: var(--font-size-base, 1rem);
   background-color: transparent;
+  overflow-x: hidden;
 }
 
 a {

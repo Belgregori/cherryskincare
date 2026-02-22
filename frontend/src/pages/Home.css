@@ -59,8 +59,97 @@
   text-shadow: 0 2px 4px rgba(201, 74, 90, 0.1);
 }
 
+/* Sección Categorías (antes de Nuestros Productos) */
+.home-categories-section {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.home-categories-title {
+  font-size: var(--font-size-3xl, clamp(2rem, 4vw, 2.5rem));
+  margin-bottom: var(--spacing-md, clamp(1rem, 2vw, 1.5rem));
+  color: #333;
+  line-height: 1.2;
+  text-align: center;
+  width: 100%;
+}
+
+.home-categories-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(0.5rem, 1.5vw, 1rem);
+  width: 100%;
+  max-width: 880px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.home-category-card {
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: clamp(8px, 1.5vw, 12px);
+  overflow: hidden;
+  cursor: pointer;
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.home-category-card:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px);
+}
+
+.home-category-card:focus {
+  outline: 2px solid rgba(201, 74, 90, 0.5);
+  outline-offset: 2px;
+}
+
+.home-category-card-image {
+  width: 100%;
+  height: clamp(95px, 15vw, 150px);
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.home-category-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.home-category-no-image {
+  color: #999;
+  font-size: clamp(0.65rem, 1.5vw, 0.8rem);
+  padding: 0.5rem;
+}
+
+.home-category-card-info {
+  text-align: center;
+  padding: clamp(0.45rem, 1vw, 0.65rem);
+  border-top: 1px solid #f0f0f0;
+}
+
+.home-category-card-info span {
+  font-size: clamp(0.75rem, 1.6vw, 0.9rem);
+  font-weight: 600;
+  color: #333;
+}
+
 .products-section {
   margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
 }
 
 .products-section h2 {
@@ -68,14 +157,41 @@
   margin-bottom: var(--spacing-md, clamp(1rem, 2vw, 1.5rem));
   color: #333;
   line-height: 1.2;
+  text-align: center;
+  width: 100%;
 }
 
-.products-grid {
+.products-section .products-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: clamp(0.5rem, 1.5vw, 1rem);
   margin-top: var(--spacing-md, clamp(1rem, 2vw, 1.5rem));
   width: 100%;
+  max-width: 880px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.products-section .products-grid .product-image {
+  padding-bottom: 62%;
+}
+
+.products-section .products-grid .product-info {
+  padding: clamp(0.5rem, 1.2vw, 0.75rem);
+  gap: clamp(0.25rem, 0.8vw, 0.4rem);
+}
+
+.products-section .products-grid .product-info h3 {
+  font-size: clamp(0.85rem, 2.5vw, 1.1rem);
+}
+
+.products-section .products-grid .product-category,
+.products-section .products-grid .product-price {
+  font-size: clamp(0.55rem, 1.4vw, 0.7rem);
+}
+
+.products-section .no-products {
+  text-align: center;
 }
 
 /* Estilos de product-card movidos a ProductCard.css para mantener consistencia */
@@ -112,5 +228,61 @@
 
 .no-products {
   color: #666;
+}
+
+/* === RESPONSIVE === */
+/* Solo evita que el layout se rompa en pantallas chicas. Sin cambios de colores, tipografías,
+   espaciados, bordes, sombras ni jerarquía. Reversible: eliminar este bloque restaura el original. */
+
+.home-page {
+  overflow-x: hidden;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100vw;
+}
+
+.home-container {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+.carousel-section,
+.home-categories-section,
+.products-section {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.carousel-section {
+  overflow: hidden;
+}
+
+.products-section .products-grid {
+  min-width: 0;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.products-section .products-grid > * {
+  min-width: 0;
+}
+
+.home-categories-grid > * {
+  min-width: 0;
+}
+
+.loading,
+.error,
+.no-products {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+@media (max-width: 480px) {
+  .loading,
+  .error,
+  .no-products {
+    font-size: clamp(0.875rem, 2.5vw, 1.2rem);
+  }
 }
 
