@@ -10,6 +10,7 @@ const ProductList = lazy(() => import('../components/admin/ProductList'));
 const EditProduct = lazy(() => import('../components/admin/EditProduct'));
 const OrderList = lazy(() => import('../components/admin/OrderList'));
 const UserList = lazy(() => import('../components/admin/UserList'));
+const ContactMessages = lazy(() => import('../components/admin/ContactMessages'));
 
 // Secciones válidas del admin
 const VALID_SECTIONS = [
@@ -17,7 +18,8 @@ const VALID_SECTIONS = [
   'products',
   'edit-product',
   'orders',
-  'users'
+  'users',
+  'contact-messages'
 ];
 
 function AdminDashboard() {
@@ -155,6 +157,9 @@ function AdminDashboard() {
       case 'users':
         return <UserList />;
 
+      case 'contact-messages':
+        return <ContactMessages />;
+
       default:
         return (
           <div className="admin-welcome">
@@ -203,6 +208,12 @@ function AdminDashboard() {
             onClick={() => setActiveSectionSafe('users')}
           >
             👥 Usuarios
+          </button>
+          <button
+            className={`nav-item ${activeSection === 'contact-messages' ? 'active' : ''}`}
+            onClick={() => setActiveSectionSafe('contact-messages')}
+          >
+            💌 Contacto
           </button>
         </nav>
 

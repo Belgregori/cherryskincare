@@ -4,9 +4,11 @@ import com.cherryskincare.dto.AdminOrderDTO;
 import com.cherryskincare.dto.AdminProductDTO;
 import com.cherryskincare.dto.AdminUserDTO;
 import com.cherryskincare.dto.CategoryDTO;
+import com.cherryskincare.dto.ContactMessageDTO;
 import com.cherryskincare.model.Order;
 import com.cherryskincare.service.AdminService;
 import com.cherryskincare.service.CategoryService;
+import com.cherryskincare.service.ContactMessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -36,6 +38,9 @@ public class AdminController {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private ContactMessageService contactMessageService;
 
     // ========== GESTIÓN DE PRODUCTOS ==========
 
@@ -287,6 +292,23 @@ public class AdminController {
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    // ========== MENSAJES DE CONTACTO ==========
+
+    @Operation(summary = "Listar mensajes de contacto (Admin)")
+    @GetMapping("/contact-messages")
+    public ResponseEntity<List<ContactMessageDTO>> getAllContactMessages() {
+        return ResponseEntity.ok(contactMessageService.listAll());
+    }
+
+    @Operation(summary = "Marcar mensaje como leído/no leído (Admin)")
+    @PutMapping("/contact-messages/{id}/read")
+    public ResponseEntity<ContactMessageDTO> markContactMessageRead(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "true") boolean read
+    ) {
+        return ResponseEntity.ok(contactMessageService.markRead(id, read));
     }
 
     // Clase interna para respuesta de imagen

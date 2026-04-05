@@ -78,6 +78,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/login", "/api/auth/verify", "/api/auth/refresh", 
                                  "/api/auth/forgot-password", "/api/auth/reset-password").permitAll()
                 .requestMatchers("/api/products/**").permitAll()
+                .requestMatchers("/api/contact/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/categories").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/images/**").permitAll()
                 .requestMatchers("/api/images/upload").hasRole("ADMIN")
