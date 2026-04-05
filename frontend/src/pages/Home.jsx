@@ -6,11 +6,13 @@ import Footer from '../components/Footer';
 import ImageCarousel from '../components/ImageCarousel';
 import ProductCard from '../components/ProductCard';
 import { getImageUrl } from '../services/api';
+import { getApiErrorMessage } from '../utils/apiError';
 import './Home.css';
 
 function Home() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [categoriesError, setCategoriesError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -28,9 +30,16 @@ function Home() {
         ? list.map((name, i) => ({ id: i + 1, name, imageUrl: null }))
         : list;
       setCategories(normalized);
+      setCategoriesError(null);
     } catch (err) {
       console.error('Error al cargar categorías:', err);
       setCategories([]);
+      setCategoriesError(
+        getApiErrorMessage(
+          err,
+          'No pudimos cargar las categorías. Podés seguir explorando los productos abajo.'
+        )
+      );
     }
   };
 
@@ -44,20 +53,12 @@ function Home() {
       setProducts(activeProducts);
     } catch (err) {
       console.error('Error al cargar productos:', err);
-      let errorMessage = 'Error al cargar los productos';
-      
-      if (err.response) {
-        // Error del servidor
-        errorMessage = `Error del servidor: ${err.response.status} - ${err.response.statusText}`;
-      } else if (err.request) {
-        // Error de red (no hay respuesta)
-        errorMessage = 'No se pudo conectar al servidor. Verifica que el backend esté corriendo.';
-      } else {
-        // Error al configurar la petición
-        errorMessage = `Error: ${err.message}`;
-      }
-      
-      setError(errorMessage);
+      setError(
+        getApiErrorMessage(
+          err,
+          'No pudimos cargar el catálogo en este momento. Probá de nuevo en unos minutos.'
+        )
+      );
     } finally {
       setLoading(false);
     }
@@ -115,6 +116,11 @@ function Home() {
 
         <section className="home-categories-section">
           <h2 className="home-categories-title">Categorías</h2>
+          {categoriesError && (
+            <p className="home-categories-warning" role="status">
+              {categoriesError}
+            </p>
+          )}
           {categories.length > 0 ? (
             <div className="home-categories-grid">
               {categories.map((cat) => (

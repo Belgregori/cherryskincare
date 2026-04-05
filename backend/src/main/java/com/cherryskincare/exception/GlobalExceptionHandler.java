@@ -226,10 +226,9 @@ public class GlobalExceptionHandler {
                 e.getMessage(), getClientIp(request), request.getRequestURI(), e);
         MDC.clear();
         
-        // No exponer detalles internos en producción
-        String message = e.getMessage() != null ? e.getMessage() : "Error inesperado";
+        // Mensaje genérico al cliente; el detalle queda solo en logs
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(buildErrorResponse(ErrorCode.INTERNAL_ERROR, message, HttpStatus.INTERNAL_SERVER_ERROR, request));
+                .body(buildErrorResponse(ErrorCode.INTERNAL_ERROR, null, HttpStatus.INTERNAL_SERVER_ERROR, request));
     }
 
     @ExceptionHandler(Exception.class)

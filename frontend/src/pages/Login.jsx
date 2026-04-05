@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { getApiErrorMessage } from '../utils/apiError';
 import './Login.css';
 
 function Login() {
@@ -33,7 +34,12 @@ function Login() {
         navigate('/');
       }
     } catch (err) {
-      setError(err.response?.data?.error || err.message || 'Credenciales inválidas');
+      setError(
+        getApiErrorMessage(
+          err,
+          'No pudimos iniciar sesión. Verificá tu email o teléfono y tu contraseña.'
+        )
+      );
     } finally {
       setLoading(false);
     }

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { getApiErrorMessage } from '../utils/apiError';
 import './AdminLogin.css';
 
 function AdminLogin() {
@@ -31,7 +32,12 @@ function AdminLogin() {
       // Redirigir al panel de admin
       navigate('/admin/dashboard');
     } catch (err) {
-      setError(err.response?.data?.error || err.message || 'Credenciales inválidas');
+      setError(
+        getApiErrorMessage(
+          err,
+          'No pudimos validar el acceso de administrador. Revisá email y contraseña.'
+        )
+      );
     } finally {
       setLoading(false);
     }

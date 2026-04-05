@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { getApiErrorMessage } from '../utils/apiError';
 import './Register.css';
 
 function Register() {
@@ -65,7 +66,12 @@ function Register() {
       // Redirigir a home
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.error || 'Error al registrar usuario');
+      setError(
+        getApiErrorMessage(
+          err,
+          'No pudimos crear tu cuenta. Si ya estabas registrada, probá iniciar sesión.'
+        )
+      );
     } finally {
       setLoading(false);
     }
