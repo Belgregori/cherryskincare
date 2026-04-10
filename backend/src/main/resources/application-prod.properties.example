@@ -1,0 +1,62 @@
+# ============================================
+# PERFIL DE PRODUCCIÓN - ARCHIVO DE EJEMPLO
+# ============================================
+# ⚠️ IMPORTANTE: NUNCA commitees este archivo con valores reales
+# Usa SOLO variables de entorno para valores sensibles
+#
+# Para usar este perfil:
+# 1. Copia este archivo: cp application-prod.properties.example application-prod.properties
+# 2. Configura TODAS las variables de entorno requeridas
+# 3. Activa el perfil: spring.profiles.active=prod
+#    O usa: SPRING_PROFILES_ACTIVE=prod
+# ============================================
+
+# Base de datos MySQL (producción)
+# ⚠️ TODAS las credenciales DEBEN venir de variables de entorno
+spring.datasource.url=${DB_URL}
+spring.datasource.username=${DB_USERNAME}
+spring.datasource.password=${DB_PASSWORD}
+
+# JWT Configuration (producción)
+# ⚠️ DEBE ser una clave secreta fuerte generada aleatoriamente (mínimo 256 bits)
+# Genera con: openssl rand -base64 32
+jwt.secret=${JWT_SECRET}
+jwt.expiration=${JWT_EXPIRATION:86400000}
+jwt.refresh-expiration=${JWT_REFRESH_EXPIRATION:604800000}
+
+# JPA (producción)
+spring.jpa.show-sql=false
+spring.jpa.hibernate.ddl-auto=validate
+spring.jpa.properties.hibernate.format_sql=false
+
+# Server (producción)
+server.port=${SERVER_PORT:8080}
+
+# Logging (producción)
+logging.level.com.cherryskincare=INFO
+logging.level.org.springframework.security=WARN
+logging.file.name=/var/log/cherry-skincare/application.log
+
+# File Storage (producción)
+file.upload-dir=${FILE_UPLOAD_DIR:/var/uploads/images}
+
+# CORS (producción)
+# ⚠️ Configura solo los orígenes de tu frontend
+cors.allowed-origins=${CORS_ORIGINS}
+
+# Admin User Configuration (producción)
+# ⚠️ IMPORTANTE: Configurar mediante variables de entorno
+admin.email=${ADMIN_EMAIL}
+admin.password=${ADMIN_PASSWORD}
+# En producción, NUNCA crear admin automáticamente
+admin.create-on-startup=false
+
+# App Base URL (producción)
+app.base-url=${APP_BASE_URL}
+
+# Email Configuration (producción)
+spring.mail.enabled=${MAIL_ENABLED:true}
+spring.mail.host=${MAIL_HOST}
+spring.mail.port=${MAIL_PORT:587}
+spring.mail.username=${MAIL_USERNAME}
+spring.mail.password=${MAIL_PASSWORD}
