@@ -90,6 +90,13 @@ function AddProduct({ onSuccess }) {
     }
   };
 
+  /** Primera letra mayúscula, resto minúsculas (ej. Skincare) */
+  const formatCategoryName = (name) => {
+    const t = (name || '').trim();
+    if (!t) return '';
+    return t.charAt(0).toUpperCase() + t.slice(1).toLowerCase();
+  };
+
   // Handlers para categorías
   const handleCategoryInputChange = (e) => {
     const { name, value } = e.target;
@@ -150,6 +157,8 @@ function AddProduct({ onSuccess }) {
       return;
     }
 
+    const normalizedName = formatCategoryName(trimmedName);
+
     setSavingCategory(true);
     setMessage({ type: '', text: '' });
 
@@ -158,7 +167,7 @@ function AddProduct({ onSuccess }) {
 
       if (editingCategoryId) {
         const categoryData = {
-          name: trimmedName.toUpperCase(),
+          name: normalizedName,
           displayOrder: categoryFormData.displayOrder || 0,
           imageUrl: categoryCurrentImageUrl
         };
@@ -179,7 +188,7 @@ function AddProduct({ onSuccess }) {
         }
       } else {
         const categoryData = {
-          name: trimmedName.toUpperCase(),
+          name: normalizedName,
           displayOrder: categoryFormData.displayOrder || 0
         };
 

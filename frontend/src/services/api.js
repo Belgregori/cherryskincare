@@ -3,12 +3,12 @@ import axios from 'axios';
 // URL base del API - configurable mediante variable de entorno
 // En desarrollo, usar proxy de Vite (ruta relativa)
 // En producción, usar la URL completa
-const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api' : 'http://localhost:8080/api');
+const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api' : '');
 
 // URL base para imágenes
 // En desarrollo, usar URL completa porque el proxy de Vite puede no funcionar para <img> tags
-// En producción, usar la URL completa del servidor
-export const IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_BASE_URL || (import.meta.env.DEV ? 'http://localhost:8080' : 'http://localhost:8080');
+// En producción, definir VITE_IMAGE_BASE_URL (sin fallback a localhost)
+export const IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_BASE_URL || (import.meta.env.DEV ? 'http://localhost:8080' : '');
 
 // Función helper para construir URLs de imágenes correctamente
 export const getImageUrl = (imageUrl) => {

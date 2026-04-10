@@ -2,6 +2,7 @@ import { useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { ToastProvider } from './context/ToastContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import { setupGlobalErrorHandling, cleanupGlobalErrorHandling } from './utils/globalErrorHandler';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -63,6 +64,7 @@ function App() {
     <AuthProvider>
       <CartProvider>
         <Router>
+          <ToastProvider>
           <ErrorBoundary>
             <RoutePrefetcher />
             <Background />
@@ -112,6 +114,7 @@ function App() {
               </Suspense>
             </div>
           </ErrorBoundary>
+          </ToastProvider>
         </Router>
       </CartProvider>
     </AuthProvider>

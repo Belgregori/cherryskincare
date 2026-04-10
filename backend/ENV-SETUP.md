@@ -41,7 +41,19 @@ Si prefieres usar un archivo `.env`, necesitarás agregar la dependencia `spring
 - `DB_URL`: URL de conexión (por defecto: `jdbc:mysql://localhost:3306/cherry_skincare...`)
 - `DB_USERNAME`: Usuario de BD (por defecto: `root`)
 - `SERVER_PORT`: Puerto del servidor (por defecto: `8080`)
-- `CORS_ORIGINS`: Orígenes permitidos para CORS (por defecto: `http://localhost:5173,http://localhost:3000`)
+- `CORS_ORIGINS`: Orígenes permitidos para CORS (por defecto en base: `http://localhost:5173,http://localhost:3000`). En **producción** (`prod`) es obligatoria y no tiene fallback.
+
+### Render + frontend en Vercel (CORS)
+
+Con el backend en [Render](https://render.com) y el frontend en Vercel, en el servicio web de Render → **Environment** agregá:
+
+| Variable        | Valor (ejemplo)                    |
+|-----------------|------------------------------------|
+| `CORS_ORIGINS`  | `https://tu-app.vercel.app`        |
+
+Reemplazá `tu-app.vercel.app` por el dominio real de tu despliegue en Vercel. Si necesitás más de un origen, usá una lista separada por **coma** (sin espacios), por ejemplo: `https://app.vercel.app,https://www.tudominio.com`.
+
+Eso es lo necesario para que el navegador permita las peticiones desde tu frontend al API en Render.
 - `SHOW_SQL`: Mostrar queries SQL (por defecto: `false`)
 - `UPLOAD_DIR`: Directorio para imágenes (por defecto: `uploads/images`)
 
