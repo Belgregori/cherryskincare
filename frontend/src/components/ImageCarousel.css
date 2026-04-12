@@ -1,0 +1,73 @@
+/* Carrusel horizontal infinito: movimiento continuo, escala/opacidad por posición, loop imperceptible */
+
+.image-carousel-infinite {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  padding: clamp(2rem, 5vw, 3rem) 0;
+  background: transparent;
+  border-radius: var(--radius-lg, 16px);
+  margin: 0 auto;
+}
+
+.carousel-track {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  height: clamp(260px, 42vw, 360px);
+  min-height: 260px;
+  gap: 0;
+  will-change: transform;
+  flex-shrink: 0;
+}
+
+.carousel-slot {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 0 clamp(10px, 1.2vw, 14px);
+  box-sizing: border-box;
+}
+
+.carousel-item {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  transform-origin: center center;
+  will-change: transform, opacity, box-shadow;
+  transition: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.carousel-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 16px;
+  pointer-events: none;
+}
+
+.carousel-item:focus {
+  outline: 2px solid rgba(201, 74, 90, 0.6);
+  outline-offset: 2px;
+}
+
+.carousel-item:focus:not(:focus-visible) {
+  outline: none;
+}
+
+@media (max-width: 575.98px) {
+  .image-carousel-infinite {
+    padding: clamp(1.25rem, 4vw, 2rem) 0;
+  }
+
+  .carousel-track {
+    height: clamp(180px, 45vw, 300px);
+    min-height: 180px;
+  }
+}

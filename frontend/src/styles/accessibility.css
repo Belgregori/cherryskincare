@@ -1,0 +1,203 @@
+/**
+ * Estilos de accesibilidad.
+ * 
+ * Clases y estilos para mejorar la accesibilidad visual y para lectores de pantalla.
+ */
+
+/* Clase para ocultar visualmente pero mantener accesible para lectores de pantalla */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Clase para mostrar solo cuando está enfocado (skip links) */
+.sr-only-focusable:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: 0.5rem 1rem;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  background-color: #000;
+  color: #fff;
+  z-index: 9999;
+}
+
+/* Indicador visual de campos requeridos */
+.required-asterisk {
+  color: #dc3545;
+  font-weight: bold;
+  margin-left: 0.25rem;
+}
+
+/* Estilos para estados de foco mejorados */
+*:focus-visible {
+  outline: 2px solid #0066cc;
+  outline-offset: 2px;
+}
+
+/* Mejorar contraste para enlaces */
+a:focus {
+  outline: 2px solid #0066cc;
+  outline-offset: 2px;
+  text-decoration: underline;
+}
+
+/* Estilos para mensajes de error accesibles */
+.error-message {
+  color: #dc3545;
+  font-weight: 500;
+  margin-top: 0.5rem;
+}
+
+.error-message[role="alert"] {
+  border-left: 3px solid #dc3545;
+  padding-left: 0.75rem;
+}
+
+/* Estilos para campos con error */
+.form-group.has-error input,
+.form-group.has-error select,
+.form-group.has-error textarea {
+  border-color: #dc3545;
+  border-width: 2px;
+}
+
+.form-group.has-error label {
+  color: #dc3545;
+}
+
+/* Estilos para campos deshabilitados */
+input:disabled,
+button:disabled,
+select:disabled,
+textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Mejorar visibilidad de botones deshabilitados */
+button[aria-disabled="true"] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Estilos para regiones ARIA */
+[role="region"] {
+  position: relative;
+}
+
+[role="alert"] {
+  position: relative;
+}
+
+/* Estilos para skip links */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: #000;
+  color: #fff;
+  padding: 8px;
+  text-decoration: none;
+  z-index: 100;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* Mejorar contraste de texto en botones */
+button {
+  min-height: 44px; /* Tamaño mínimo táctil recomendado */
+  min-width: 44px;
+}
+
+/* Estilos para estados de carga accesibles */
+.loading[aria-busy="true"]::before {
+  content: "Cargando...";
+  position: absolute;
+  left: -9999px;
+}
+
+/* Estilos para modales accesibles */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1040;
+}
+
+.modal[role="dialog"] {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1050;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: auto;
+}
+
+/* Mejorar visibilidad de elementos interactivos */
+[role="button"]:hover,
+[role="button"]:focus {
+  cursor: pointer;
+}
+
+/* Estilos para indicadores de estado */
+.status-indicator[aria-live="polite"],
+.status-indicator[aria-live="assertive"] {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Mejorar contraste para texto importante */
+.high-contrast {
+  color: #000;
+  background-color: #fff;
+  border: 2px solid #000;
+}
+
+/* Estilos para modo de alto contraste (media query) */
+@media (prefers-contrast: high) {
+  * {
+    border-color: currentColor;
+  }
+  
+  button,
+  a {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Estilos para reducir animaciones (prefers-reduced-motion) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

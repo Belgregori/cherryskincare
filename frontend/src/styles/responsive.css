@@ -1,0 +1,270 @@
+/**
+ * Sistema de diseño responsive.
+ * 
+ * Define breakpoints estándar y utilidades para diseño responsive.
+ */
+
+:root {
+  /* Breakpoints estándar */
+  --breakpoint-xs: 320px;   /* Teléfonos pequeños */
+  --breakpoint-sm: 576px;   /* Teléfonos grandes */
+  --breakpoint-md: 768px;   /* Tablets */
+  --breakpoint-lg: 992px;   /* Tablets grandes / Laptops pequeños */
+  --breakpoint-xl: 1200px;  /* Laptops / Desktops */
+  --breakpoint-xxl: 1400px; /* Desktops grandes */
+  
+  /* Espaciado responsive */
+  --spacing-xs: clamp(0.25rem, 0.5vw, 0.5rem);
+  --spacing-sm: clamp(0.5rem, 1vw, 1rem);
+  --spacing-md: clamp(1rem, 2vw, 1.5rem);
+  --spacing-lg: clamp(1.5rem, 3vw, 2.5rem);
+  --spacing-xl: clamp(2rem, 4vw, 3.5rem);
+  --spacing-xxl: clamp(3rem, 6vw, 5rem);
+  
+  /* Tipografía responsive */
+  --font-size-xs: clamp(0.75rem, 1.5vw, 0.875rem);
+  --font-size-sm: clamp(0.875rem, 1.75vw, 1rem);
+  --font-size-base: clamp(1rem, 2vw, 1.125rem);
+  --font-size-lg: clamp(1.125rem, 2.25vw, 1.25rem);
+  --font-size-xl: clamp(1.25rem, 2.5vw, 1.5rem);
+  --font-size-2xl: clamp(1.5rem, 3vw, 2rem);
+  --font-size-3xl: clamp(2rem, 4vw, 2.5rem);
+  --font-size-4xl: clamp(2.5rem, 5vw, 3.5rem);
+  --font-size-5xl: clamp(3rem, 6vw, 4.5rem);
+  
+  /* Contenedores responsive */
+  --container-padding: clamp(1rem, 4vw, 2rem);
+  --container-max-width: 1200px;
+  --container-max-width-sm: 540px;
+  --container-max-width-md: 720px;
+  --container-max-width-lg: 960px;
+  --container-max-width-xl: 1140px;
+  --container-max-width-xxl: 1320px;
+  
+  /* Grid responsive */
+  --grid-gap: clamp(1rem, 2vw, 2rem);
+  --grid-gap-sm: clamp(0.5rem, 1vw, 1rem);
+  --grid-gap-lg: clamp(1.5rem, 3vw, 3rem);
+  
+  /* Border radius responsive */
+  --radius-sm: clamp(4px, 0.5vw, 6px);
+  --radius-md: clamp(8px, 1vw, 12px);
+  --radius-lg: clamp(12px, 1.5vw, 16px);
+  --radius-xl: clamp(16px, 2vw, 24px);
+  
+  /* Sombras responsive */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Utilidades de contenedor responsive */
+.container {
+  width: 100%;
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding-left: var(--container-padding);
+  padding-right: var(--container-padding);
+}
+
+.container-fluid {
+  width: 100%;
+  padding-left: var(--container-padding);
+  padding-right: var(--container-padding);
+}
+
+/* Media queries estándar */
+@media (max-width: 575.98px) {
+  /* Extra small devices (portrait phones) */
+  :root {
+    --container-padding: 1rem;
+  }
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+  /* Small devices (landscape phones) */
+  :root {
+    --container-padding: 1.25rem;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+  /* Medium devices (tablets) */
+  :root {
+    --container-padding: 1.5rem;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  /* Large devices (desktops) */
+  :root {
+    --container-padding: 1.75rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  /* Extra large devices (large desktops) */
+  :root {
+    --container-padding: 2rem;
+  }
+}
+
+/* Utilidades para ocultar/mostrar según breakpoint */
+.hide-xs {
+  display: none;
+}
+
+@media (min-width: 576px) {
+  .hide-xs {
+    display: block;
+  }
+  .hide-sm {
+    display: none;
+  }
+}
+
+@media (min-width: 768px) {
+  .hide-sm {
+    display: block;
+  }
+  .hide-md {
+    display: none;
+  }
+}
+
+@media (min-width: 992px) {
+  .hide-md {
+    display: block;
+  }
+  .hide-lg {
+    display: none;
+  }
+}
+
+@media (min-width: 1200px) {
+  .hide-lg {
+    display: block;
+  }
+}
+
+/* Utilidades para imágenes responsive */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Utilidades para videos responsive */
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Utilidades para iframes responsive */
+iframe {
+  max-width: 100%;
+}
+
+/* Utilidades para tablas responsive */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 767.98px) {
+  .table-responsive table {
+    min-width: 600px;
+  }
+}
+
+/* Utilidades para texto responsive */
+.text-responsive {
+  font-size: var(--font-size-base);
+}
+
+.text-responsive-sm {
+  font-size: var(--font-size-sm);
+}
+
+.text-responsive-lg {
+  font-size: var(--font-size-lg);
+}
+
+.text-responsive-xl {
+  font-size: var(--font-size-xl);
+}
+
+/* Utilidades para espaciado responsive */
+.p-responsive {
+  padding: var(--spacing-md);
+}
+
+.p-responsive-sm {
+  padding: var(--spacing-sm);
+}
+
+.p-responsive-lg {
+  padding: var(--spacing-lg);
+}
+
+.m-responsive {
+  margin: var(--spacing-md);
+}
+
+.m-responsive-sm {
+  margin: var(--spacing-sm);
+}
+
+.m-responsive-lg {
+  margin: var(--spacing-lg);
+}
+
+/* Grid responsive helper */
+.grid-responsive {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--grid-gap);
+}
+
+@media (min-width: 576px) {
+  .grid-responsive {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .grid-responsive {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 992px) {
+  .grid-responsive {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Flexbox responsive helper */
+.flex-responsive {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+@media (min-width: 768px) {
+  .flex-responsive {
+    flex-direction: row;
+  }
+}
+
+/* Utilidad para elementos que deben ser full width en móvil */
+.full-width-mobile {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .full-width-mobile {
+    width: auto;
+  }
+}

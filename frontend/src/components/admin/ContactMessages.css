@@ -1,0 +1,267 @@
+.contact-messages-container {
+  background: white;
+  border-radius: 10px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.contact-messages-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.contact-messages-header h2 {
+  margin: 0;
+  color: #333;
+  font-size: 1.8rem;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.search-input {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  min-width: 260px;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #C94A5A;
+}
+
+.status-filter {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background: white;
+  cursor: pointer;
+}
+
+.status-filter:focus {
+  outline: none;
+  border-color: #C94A5A;
+}
+
+.refresh-button {
+  padding: 0.45rem 0.7rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+}
+
+.refresh-button:hover {
+  border-color: rgba(201, 74, 90, 0.35);
+}
+
+.count {
+  margin: 0;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.loading, .error-message, .empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.error-message {
+  color: #c62828;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.messages-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.messages-table thead {
+  background: #f5f5f5;
+}
+
+.messages-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid #ddd;
+}
+
+.messages-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+  vertical-align: top;
+}
+
+.messages-table tbody tr:hover {
+  background: #f9f9f9;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.badge.unread {
+  background: rgba(201, 74, 90, 0.10);
+  color: #C94A5A;
+}
+
+.badge.read {
+  background: rgba(76, 175, 80, 0.12);
+  color: #2e7d32;
+}
+
+.date-cell {
+  white-space: nowrap;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.email-cell {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.view-button {
+  padding: 0.4rem 0.8rem;
+  background: #C94A5A;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+}
+
+.view-button:hover {
+  background: #B85C6E;
+}
+
+.toggle-button {
+  padding: 0.4rem 0.8rem;
+  background: white;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.toggle-button:hover {
+  border-color: rgba(201, 74, 90, 0.35);
+}
+
+.message-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 1.5rem;
+}
+
+.message-modal {
+  width: min(760px, 95vw);
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background: #f7f7f7;
+  border-bottom: 1px solid #eee;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #333;
+}
+
+.close-button {
+  background: transparent;
+  border: none;
+  font-size: 1.6rem;
+  cursor: pointer;
+  color: #666;
+  line-height: 1;
+}
+
+.modal-body {
+  padding: 1.25rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.meta {
+  display: grid;
+  gap: 0.4rem;
+  color: #333;
+}
+
+.message-box {
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 10px;
+  padding: 1rem;
+  white-space: pre-wrap;
+  color: #333;
+  line-height: 1.6;
+}
+
+.modal-footer {
+  padding: 1rem 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  border-top: 1px solid #eee;
+  background: #fff;
+  flex-wrap: wrap;
+}
+
+.reply-link {
+  color: #C94A5A;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.reply-link:hover {
+  text-decoration: underline;
+}
+
