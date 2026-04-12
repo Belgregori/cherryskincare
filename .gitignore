@@ -57,7 +57,7 @@ frontend/.env.local
 frontend/.env.*.local
 
 ### Archivos basura (raíz del proyecto) ###
-src/
+
 target/
 test-*.ps1
 *.ps1
