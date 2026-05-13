@@ -28,11 +28,12 @@ public class CorsConfig {
 
     /**
      * Configuración del origen de CORS.
-     * 
+     * <p>
      * Define qué orígenes tienen permitido hacer peticiones a la API.
-     * Los orígenes se configuran mediante la propiedad cors.allowed-origins
-     * separados por comas (ejemplo: http://localhost:3000,https://misitio.com)
-     * 
+     * Los orígenes se configuran mediante la propiedad {@code cors.allowed-origins}
+     * separados por comas (ejemplo: {@code http://localhost:3000,https://misitio.com}).
+     * El registro aplica esta configuración a todas las rutas del contexto servlet.
+     *
      * @return CorsConfigurationSource con la configuración de CORS
      */
     @Bean
@@ -62,8 +63,8 @@ public class CorsConfig {
         configuration.setMaxAge(3600L);
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        // Aplicar esta configuración a todas las rutas que empiecen con /api
-        source.registerCorsConfiguration("/api/**", configuration);
+        // Toda la app (incluye /api/** y cualquier otra ruta bajo el contexto servlet)
+        source.registerCorsConfiguration("/**", configuration);
         
         return source;
     }
