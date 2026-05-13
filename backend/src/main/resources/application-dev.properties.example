@@ -32,7 +32,8 @@ logging.level.com.cherryskincare=DEBUG
 
 # Admin User Configuration (desarrollo)
 # Solo para desarrollo local - configura estas variables
-admin.email=${ADMIN_EMAIL:admin@localhost}
+# Email por defecto con dominio con punto (válido para @Email en login y frontend)
+admin.email=${ADMIN_EMAIL:admin@cherry.skincare}
 admin.password=${ADMIN_PASSWORD:admin123}
 # Habilitar creación de admin en desarrollo
 admin.create-on-startup=true
