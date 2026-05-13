@@ -182,7 +182,15 @@ function Checkout() {
       clearCart();
       navigate('/payment-methods');
     } catch (err) {
-      setError(getApiErrorMessage(err, 'Error al crear la orden. Por favor intenta nuevamente.'));
+      setError(
+        getApiErrorMessage(err, 'No pudimos registrar tu pedido. Revisá los datos e intentá de nuevo.', {
+          byStatus: {
+            400: 'Algunos datos del pedido no son válidos. Revisá el formulario.',
+            409: 'No pudimos completar el pedido por un conflicto de stock o disponibilidad.',
+            422: 'No pudimos validar el pedido. Revisá cantidades y productos.',
+          },
+        })
+      );
       console.error(err);
     } finally {
       setLoading(false);

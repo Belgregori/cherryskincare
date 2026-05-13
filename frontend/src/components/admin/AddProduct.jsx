@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import api, { IMAGE_BASE_URL } from '../../services/api';
+import { getApiErrorMessage } from '../../utils/apiError';
 import './AddProduct.css';
 
 function AddProduct({ onSuccess }) {
@@ -54,6 +55,12 @@ function AddProduct({ onSuccess }) {
     } catch (err) {
       console.error('Error al cargar categorías:', err);
       setCategories([]);
+      setMessage({
+        type: 'error',
+        text: getApiErrorMessage(err, 'No pudimos cargar las categorías para el formulario.', {
+          byStatus: { 403: 'No tenés permiso para cargar categorías.', 503: 'Servicio no disponible temporalmente.' },
+        }),
+      });
     } finally {
       setLoadingCategories(false);
     }
@@ -218,7 +225,11 @@ function AddProduct({ onSuccess }) {
     } catch (error) {
       setMessage({
         type: 'error',
-        text: error.response?.data?.error || (editingCategoryId ? 'Error al actualizar la categoría' : 'Error al crear la categoría')
+        text: getApiErrorMessage(
+          error,
+          editingCategoryId ? 'No pudimos actualizar la categoría.' : 'No pudimos crear la categoría.',
+          { byStatus: { 409: 'Ya existe una categoría con ese nombre.', 400: 'Los datos de la categoría no son válidos.' } }
+        ),
       });
     } finally {
       setSavingCategory(false);
@@ -239,9 +250,16 @@ function AddProduct({ onSuccess }) {
         setFormData(prev => ({ ...prev, category: '' }));
       }
     } catch (error) {
-      const msg = error.response?.status === 409
-        ? (error.response?.data?.error || 'No se puede eliminar: tiene productos asociados.')
-        : (error.response?.data?.error || 'Error al eliminar la categoría.');
+      const msg = getApiErrorMessage(
+        error,
+        'No pudimos eliminar la categoría.',
+        {
+          byStatus: {
+            409: error.response?.data?.error || 'No se puede eliminar: tiene productos asociados.',
+            404: 'Esa categoría ya no existe.',
+          },
+        }
+      );
       setMessage({ type: 'error', text: msg });
     }
   };
@@ -297,7 +315,9 @@ function AddProduct({ onSuccess }) {
     } catch (error) {
       setMessage({
         type: 'error',
-        text: error.response?.data?.error || 'Error al agregar el producto'
+        text: getApiErrorMessage(error, 'No pudimos registrar el producto.', {
+          byStatus: { 400: 'Revisá nombre, precio, categoría y stock.', 409: 'Ya existe un producto similar o conflicto de datos.' },
+        }),
       });
     } finally {
       setLoading(false);

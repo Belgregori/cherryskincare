@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import api, { IMAGE_BASE_URL } from '../../services/api';
 import { capitalizeFirst } from '../../utils/formatUtils';
 import { useToast } from '../../context/ToastContext';
+import { getApiErrorMessage } from '../../utils/apiError';
 import './ProductList.css';
 
 function ProductList({ onEditProduct, refreshKey }) {
@@ -42,7 +43,14 @@ function ProductList({ onEditProduct, refreshKey }) {
         }
         
         if (!cancelled && !abortController.signal.aborted) {
-          setError('Error al cargar los productos');
+          setError(
+            getApiErrorMessage(err, 'No pudimos cargar el listado de productos.', {
+              byStatus: {
+                403: 'No tenés permiso para ver el catálogo de administración.',
+                503: 'El listado no está disponible temporalmente.',
+              },
+            })
+          );
           console.error(err);
         }
       } finally {
@@ -92,7 +100,15 @@ function ProductList({ onEditProduct, refreshKey }) {
       if (err.name === 'CanceledError' || err.name === 'AbortError') {
         return;
       }
-      showToast('Error al eliminar el producto', { variant: 'error' });
+      showToast(
+        getApiErrorMessage(err, 'No pudimos eliminar el producto.', {
+          byStatus: {
+            404: 'Ese producto ya no existe.',
+            409: 'No se puede eliminar porque está asociado a pedidos u otros datos.',
+          },
+        }),
+        { variant: 'error' }
+      );
       console.error(err);
     }
   };
@@ -112,7 +128,12 @@ function ProductList({ onEditProduct, refreshKey }) {
       if (err.name === 'CanceledError' || err.name === 'AbortError') {
         return;
       }
-      showToast('Error al actualizar el estado del producto', { variant: 'error' });
+      showToast(
+        getApiErrorMessage(err, 'No pudimos actualizar el estado del producto.', {
+          byStatus: { 404: 'El producto ya no existe.', 409: 'Conflicto al guardar el estado.' },
+        }),
+        { variant: 'error' }
+      );
       console.error(err);
     }
   };

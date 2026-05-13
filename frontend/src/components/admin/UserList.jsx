@@ -22,7 +22,14 @@ function UserList() {
       setUsers(response.data);
       setError(null);
     } catch (err) {
-      setError(getApiErrorMessage(err, 'No pudimos cargar la lista de usuarios.'));
+      setError(
+        getApiErrorMessage(err, 'No pudimos cargar la lista de usuarios.', {
+          byStatus: {
+            403: 'Tu sesión no tiene permiso para ver usuarios.',
+            503: 'No pudimos cargar usuarios en este momento.',
+          },
+        })
+      );
       console.error(err);
     } finally {
       setLoading(false);

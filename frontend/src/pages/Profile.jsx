@@ -19,8 +19,10 @@ function Profile() {
   });
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [userLoadError, setUserLoadError] = useState('');
+  const [ordersError, setOrdersError] = useState('');
+  const [profileFeedback, setProfileFeedback] = useState({ type: '', text: '' });
+  const [passwordFeedback, setPasswordFeedback] = useState({ type: '', text: '' });
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -29,6 +31,13 @@ function Profile() {
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [loadingUpdate, setLoadingUpdate] = useState(false);
   const [loadingPassword, setLoadingPassword] = useState(false);
+
+  const goTab = (tab) => {
+    setActiveTab(tab);
+    setOrdersError('');
+    setProfileFeedback({ type: '', text: '' });
+    setPasswordFeedback({ type: '', text: '' });
+  };
 
   useEffect(() => {
     if (!user) {
@@ -50,9 +59,13 @@ function Profile() {
         email: currentUser.email || '',
         telefone: currentUser.telefone || ''
       });
-      setError('');
+      setUserLoadError('');
     } catch (err) {
-      setError(getApiErrorMessage(err, 'Error al cargar los datos del usuario'));
+      setUserLoadError(
+        getApiErrorMessage(err, 'No pudimos cargar tu perfil.', {
+          byStatus: { 401: 'Tu sesión expiró. Volvé a iniciar sesión.', 503: 'Servicio no disponible temporalmente.' },
+        })
+      );
       console.error(err);
     } finally {
       setLoading(false);
@@ -64,9 +77,13 @@ function Profile() {
       setLoadingOrders(true);
       const userOrders = await orderService.getUserOrders(user.id);
       setOrders(userOrders);
-      setError('');
+      setOrdersError('');
     } catch (err) {
-      setError(getApiErrorMessage(err, 'Error al cargar los pedidos'));
+      setOrdersError(
+        getApiErrorMessage(err, 'No pudimos cargar tus pedidos.', {
+          byStatus: { 503: 'Servicio no disponible temporalmente.' },
+        })
+      );
       console.error(err);
     } finally {
       setLoadingOrders(false);
@@ -91,13 +108,12 @@ function Profile() {
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
+    setProfileFeedback({ type: '', text: '' });
     setLoadingUpdate(true);
 
     try {
       const updatedUser = await authService.updateUser(user.id, userData);
-      setSuccess('Perfil actualizado exitosamente');
+      setProfileFeedback({ type: 'success', text: 'Perfil actualizado correctamente.' });
       
       // Actualizar el usuario en el contexto de autenticación
       const updatedUserData = {
@@ -109,7 +125,12 @@ function Profile() {
       localStorage.setItem('user', JSON.stringify(updatedUserData));
       setUser(updatedUserData);
     } catch (err) {
-      setError(getApiErrorMessage(err, 'Error al actualizar el perfil'));
+      setProfileFeedback({
+        type: 'error',
+        text: getApiErrorMessage(err, 'No pudimos guardar los cambios del perfil.', {
+          byStatus: { 400: 'Revisá los datos; algún campo no es válido.', 409: 'El email o teléfono ya está en uso.' },
+        }),
+      });
     } finally {
       setLoadingUpdate(false);
     }
@@ -117,16 +138,15 @@ function Profile() {
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
+    setPasswordFeedback({ type: '', text: '' });
 
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setError('Las contraseñas no coinciden');
+      setPasswordFeedback({ type: 'error', text: 'Las contraseñas no coinciden' });
       return;
     }
 
     if (passwordData.newPassword.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres');
+      setPasswordFeedback({ type: 'error', text: 'La contraseña debe tener al menos 6 caracteres' });
       return;
     }
 
@@ -137,14 +157,19 @@ function Profile() {
         currentPassword: passwordData.currentPassword,
         newPassword: passwordData.newPassword
       });
-      setSuccess('Contraseña actualizada exitosamente');
+      setPasswordFeedback({ type: 'success', text: 'Contraseña actualizada correctamente.' });
       setPasswordData({
         currentPassword: '',
         newPassword: '',
         confirmPassword: ''
       });
     } catch (err) {
-      setError(getApiErrorMessage(err, 'Error al cambiar la contraseña'));
+      setPasswordFeedback({
+        type: 'error',
+        text: getApiErrorMessage(err, 'No pudimos cambiar la contraseña.', {
+          byStatus: { 400: 'La contraseña actual no es correcta o la nueva no cumple las reglas.' },
+        }),
+      });
     } finally {
       setLoadingPassword(false);
     }
@@ -211,32 +236,56 @@ function Profile() {
 
         <div className="profile-tabs">
           <button
+            type="button"
             className={`tab-button ${activeTab === 'profile' ? 'active' : ''}`}
-            onClick={() => setActiveTab('profile')}
+            onClick={() => goTab('profile')}
           >
             👤 Información Personal
           </button>
           <button
+            type="button"
             className={`tab-button ${activeTab === 'orders' ? 'active' : ''}`}
-            onClick={() => setActiveTab('orders')}
+            onClick={() => goTab('orders')}
           >
             📦 Mis Pedidos
           </button>
           <button
+            type="button"
             className={`tab-button ${activeTab === 'password' ? 'active' : ''}`}
-            onClick={() => setActiveTab('password')}
+            onClick={() => goTab('password')}
           >
             🔒 Cambiar Contraseña
           </button>
         </div>
 
-        {error && <div className="error-message">{error}</div>}
-        {success && <div className="success-message">{success}</div>}
+        {userLoadError ? (
+          <div className="error-message profile-load-error" role="alert">
+            <p>{userLoadError}</p>
+            <button
+              type="button"
+              className="shop-button"
+              onClick={() => {
+                setUserLoadError('');
+                loadUserData();
+              }}
+            >
+              Reintentar
+            </button>
+          </div>
+        ) : null}
 
         <div className="profile-content">
           {activeTab === 'profile' && (
             <div className="profile-section">
               <h2>Información Personal</h2>
+              {profileFeedback.text ? (
+                <div
+                  className={profileFeedback.type === 'success' ? 'success-message' : 'error-message'}
+                  role={profileFeedback.type === 'success' ? 'status' : 'alert'}
+                >
+                  {profileFeedback.text}
+                </div>
+              ) : null}
               <form onSubmit={handleUpdateProfile} className="profile-form">
                 <div className="form-group">
                   <label htmlFor="name">Nombre Completo *</label>
@@ -289,6 +338,7 @@ function Profile() {
           {activeTab === 'orders' && (
             <div className="orders-section">
               <h2>Mis Pedidos</h2>
+              {ordersError ? <div className="error-message" role="alert">{ordersError}</div> : null}
               {loadingOrders ? (
                 <div className="loading">Cargando pedidos...</div>
               ) : orders.length === 0 ? (
@@ -335,6 +385,14 @@ function Profile() {
           {activeTab === 'password' && (
             <div className="password-section">
               <h2>Cambiar Contraseña</h2>
+              {passwordFeedback.text ? (
+                <div
+                  className={passwordFeedback.type === 'success' ? 'success-message' : 'error-message'}
+                  role={passwordFeedback.type === 'success' ? 'status' : 'alert'}
+                >
+                  {passwordFeedback.text}
+                </div>
+              ) : null}
               <form onSubmit={handleChangePassword} className="password-form">
                 <div className="form-group">
                   <label htmlFor="currentPassword">Contraseña Actual *</label>

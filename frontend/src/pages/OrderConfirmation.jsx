@@ -36,7 +36,14 @@ function OrderConfirmation() {
       setOrder(data);
       setError(null);
     } catch (err) {
-      setError(getApiErrorMessage(err, 'Error al cargar la orden'));
+      setError(
+        getApiErrorMessage(err, 'No pudimos cargar el detalle de tu pedido.', {
+          byStatus: {
+            404: 'No encontramos ese pedido o no está asociado a tu cuenta.',
+            403: 'No tenés permiso para ver este pedido.',
+          },
+        })
+      );
       console.error(err);
     } finally {
       setLoading(false);

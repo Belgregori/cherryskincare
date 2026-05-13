@@ -22,7 +22,14 @@ function ForgotPassword() {
       await api.post('/auth/forgot-password', { emailOrPhone });
       setSuccess('Si el email o teléfono está registrado, recibirás un correo con las instrucciones para recuperar tu contraseña');
     } catch (err) {
-      setError(getApiErrorMessage(err, 'Error al solicitar recuperación de contraseña'));
+      setError(
+        getApiErrorMessage(err, 'No pudimos enviar el enlace de recuperación.', {
+          byStatus: {
+            404: 'No encontramos una cuenta con ese email.',
+            429: 'Demasiados intentos. Esperá unos minutos antes de pedir otro enlace.',
+          },
+        })
+      );
     } finally {
       setLoading(false);
     }

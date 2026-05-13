@@ -2,6 +2,9 @@ package com.cherryskincare.model;
 
 import jakarta.persistence.*;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 @Entity
 @Table(name = "users")
 public class User {
@@ -22,8 +25,8 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(name = "role", nullable = false, length = 50)
     private Role role = Role.USER;
 
     public User() {

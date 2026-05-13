@@ -37,7 +37,14 @@ function Login() {
       setError(
         getApiErrorMessage(
           err,
-          'No pudimos iniciar sesión. Verificá tu email o teléfono y tu contraseña.'
+          'No pudimos iniciar sesión. Verificá tu email o teléfono y tu contraseña.',
+          {
+            byStatus: {
+              401: 'Email, teléfono o contraseña incorrectos.',
+              429: 'Demasiados intentos. Esperá unos minutos e intentá de nuevo.',
+              503: 'El servicio no está disponible en este momento. Probá más tarde.',
+            },
+          }
         )
       );
     } finally {

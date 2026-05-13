@@ -35,7 +35,11 @@ function Categories() {
       setCategories(categoriesData);
     } catch (err) {
       console.error('Error al cargar categorías:', err);
-      setLoadError(getApiErrorMessage(err, 'No se pudieron cargar las categorías'));
+      setLoadError(
+        getApiErrorMessage(err, 'No pudimos cargar las categorías.', {
+          byStatus: { 503: 'Las categorías no están disponibles temporalmente.' },
+        })
+      );
       setCategories([]);
     } finally {
       setLoadingCategories(false);

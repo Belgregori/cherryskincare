@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import api from '../../services/api';
+import { getApiErrorMessage } from '../../utils/apiError';
 import './ContactMessages.css';
 
 function ContactMessages() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [loadError, setLoadError] = useState(null);
+  const [actionError, setActionError] = useState(null);
   const [selected, setSelected] = useState(null);
   const [filter, setFilter] = useState('all'); // all | unread | read
   const [search, setSearch] = useState('');
@@ -15,10 +17,14 @@ function ContactMessages() {
       setLoading(true);
       const res = await api.get('/admin/contact-messages');
       setMessages(res.data || []);
-      setError(null);
+      setLoadError(null);
     } catch (err) {
       console.error(err);
-      setError('Error al cargar los mensajes de contacto');
+      setLoadError(
+        getApiErrorMessage(err, 'No pudimos cargar los mensajes de contacto.', {
+          byStatus: { 403: 'No tenés permiso para ver los mensajes.', 503: 'Servicio no disponible temporalmente.' },
+        })
+      );
     } finally {
       setLoading(false);
     }
@@ -56,6 +62,7 @@ function ContactMessages() {
 
   const markRead = async (id, read) => {
     try {
+      setActionError(null);
       await api.put(`/admin/contact-messages/${id}/read`, null, { params: { read } });
       setMessages((prev) =>
         prev.map((m) => (m.id === id ? { ...m, read } : m))
@@ -63,16 +70,24 @@ function ContactMessages() {
       if (selected?.id === id) setSelected((prev) => ({ ...prev, read }));
     } catch (err) {
       console.error(err);
-      setError('No se pudo actualizar el estado del mensaje');
-      setTimeout(() => setError(null), 3000);
+      setActionError(
+        getApiErrorMessage(err, 'No pudimos actualizar el estado del mensaje.', {
+          byStatus: { 404: 'Ese mensaje ya no existe.', 409: 'No se pudo aplicar el cambio de estado.' },
+        })
+      );
     }
   };
 
   if (loading) return <div className="loading">Cargando mensajes...</div>;
-  if (error) return <div className="error-message">{error}</div>;
+  if (loadError) return <div className="error-message">{loadError}</div>;
 
   return (
     <div className="contact-messages-container">
+      {actionError ? (
+        <div className="contact-messages-action-error" role="alert">
+          {actionError}
+        </div>
+      ) : null}
       <div className="contact-messages-header">
         <h2>Mensajes de Contacto</h2>
         <div className="header-controls">

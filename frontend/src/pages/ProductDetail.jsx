@@ -50,7 +50,14 @@ function ProductDetail() {
       setError(null);
       setSelectedImageIndex(0); // Resetear imagen seleccionada al cargar nuevo producto
     } catch (err) {
-      setError(getApiErrorMessage(err, 'Producto no encontrado'));
+      setError(
+        getApiErrorMessage(err, 'No pudimos cargar este producto.', {
+          byStatus: {
+            404: 'Este producto no existe o ya no está disponible.',
+            403: 'No tenés permiso para ver este producto.',
+          },
+        })
+      );
     } finally {
       setLoading(false);
     }

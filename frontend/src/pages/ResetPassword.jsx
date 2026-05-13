@@ -52,7 +52,14 @@ function ResetPassword() {
         navigate('/login');
       }, 2000);
     } catch (err) {
-      setError(getApiErrorMessage(err, 'Error al resetear la contraseña'));
+      setError(
+        getApiErrorMessage(err, 'No pudimos actualizar tu contraseña.', {
+          byStatus: {
+            400: 'El enlace de recuperación no es válido o expiró. Solicitá uno nuevo.',
+            404: 'El enlace de recuperación ya no es válido.',
+          },
+        })
+      );
     } finally {
       setLoading(false);
     }

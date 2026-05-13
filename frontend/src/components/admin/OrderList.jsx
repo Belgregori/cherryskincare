@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { useToast } from '../../context/ToastContext';
+import { getApiErrorMessage } from '../../utils/apiError';
 import './OrderList.css';
 
 function OrderList() {
@@ -22,7 +23,14 @@ function OrderList() {
       setOrders(response.data);
       setError(null);
     } catch (err) {
-      setError('Error al cargar las órdenes');
+      setError(
+        getApiErrorMessage(err, 'No pudimos cargar las órdenes. Reintentá desde el panel.', {
+          byStatus: {
+            403: 'No tenés permiso para ver las órdenes.',
+            503: 'El servicio de órdenes no está disponible temporalmente.',
+          },
+        })
+      );
       console.error(err);
     } finally {
       setLoading(false);
@@ -42,7 +50,16 @@ function OrderList() {
         }
       }
     } catch (err) {
-      showToast('Error al actualizar el estado de la orden', { variant: 'error' });
+      showToast(
+        getApiErrorMessage(err, 'No pudimos actualizar el estado de la orden.', {
+          byStatus: {
+            400: 'El estado indicado no es válido para esta orden.',
+            404: 'La orden ya no existe o fue eliminada.',
+            409: 'No se puede cambiar a ese estado desde el estado actual.',
+          },
+        }),
+        { variant: 'error' }
+      );
       console.error(err);
     }
   };

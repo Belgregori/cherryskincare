@@ -37,7 +37,12 @@ function Home() {
       setCategoriesError(
         getApiErrorMessage(
           err,
-          'No pudimos cargar las categorías. Podés seguir explorando los productos abajo.'
+          'No pudimos cargar las categorías. Podés seguir explorando los productos abajo.',
+          {
+            byStatus: {
+              503: 'Las categorías no están disponibles por un momento. Los productos siguen abajo.',
+            },
+          }
         )
       );
     }
@@ -56,7 +61,12 @@ function Home() {
       setError(
         getApiErrorMessage(
           err,
-          'No pudimos cargar el catálogo en este momento. Probá de nuevo en unos minutos.'
+          'No pudimos cargar el catálogo en este momento. Probá de nuevo en unos minutos.',
+          {
+            byStatus: {
+              503: 'El catálogo no está disponible temporalmente. Probá de nuevo en unos minutos.',
+            },
+          }
         )
       );
     } finally {

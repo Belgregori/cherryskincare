@@ -42,7 +42,12 @@ function EditProduct({ productId, onCancel, onSuccess }) {
         setCurrentImageUrl(product.imageUrl);
       }
     } catch (err) {
-      setMessage({ type: 'error', text: 'Error al cargar el producto' });
+      setMessage({
+        type: 'error',
+        text: getApiErrorMessage(err, 'No pudimos cargar los datos del producto.', {
+          byStatus: { 404: 'Ese producto no existe o fue eliminado.', 403: 'No tenés permiso para editarlo.' },
+        }),
+      });
       console.error(err);
     } finally {
       setLoadingProduct(false);
@@ -144,7 +149,9 @@ function EditProduct({ productId, onCancel, onSuccess }) {
     } catch (error) {
       setMessage({
         type: 'error',
-        text: getApiErrorMessage(error, 'Error al actualizar el producto')
+        text: getApiErrorMessage(error, 'No pudimos guardar los cambios del producto.', {
+          byStatus: { 404: 'El producto ya no existe.', 409: 'Conflicto al guardar (por ejemplo stock o nombre duplicado).' },
+        }),
       });
     } finally {
       setLoading(false);

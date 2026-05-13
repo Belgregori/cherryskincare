@@ -1,9 +1,25 @@
 /**
  * Mensaje legible a partir de un error típico de Axios (o similar).
  * Prioriza el cuerpo JSON del backend (`error`) y errores por campo (`fields`).
+ *
+ * @param {unknown} error
+ * @param {string} [fallback] Mensaje cuando no hay detalle en la respuesta.
+ * @param {{
+ *   byStatus?: Record<number, string>,
+ *   appendStatusToFallback?: boolean
+ * }} [options]
+ * - byStatus: mensajes por código HTTP cuando el cuerpo no aporta texto útil.
+ * - appendStatusToFallback: si true, añade el código HTTP al final del fallback (solo depuración).
  */
-export function getApiErrorMessage(error, fallback = 'Ocurrió un error. Intentá de nuevo.') {
+export function getApiErrorMessage(
+  error,
+  fallback = 'Ocurrió un error. Intentá de nuevo.',
+  options = {}
+) {
   if (!error) return fallback;
+
+  const opts = options && typeof options === 'object' ? options : {};
+  const { byStatus, appendStatusToFallback = false } = opts;
 
   const data = error.response?.data;
 
@@ -26,7 +42,13 @@ export function getApiErrorMessage(error, fallback = 'Ocurrió un error. Intent�
 
   if (error.response) {
     const status = error.response.status;
-    return `${fallback} Si el problema continúa, indicá el código HTTP ${status}.`;
+    if (byStatus && typeof byStatus[status] === 'string' && byStatus[status].trim()) {
+      return byStatus[status].trim();
+    }
+    if (appendStatusToFallback) {
+      return `${fallback} (código ${status})`;
+    }
+    return fallback;
   }
   if (error.request) {
     return 'No se pudo conectar al servidor. Comprobá tu conexión.';

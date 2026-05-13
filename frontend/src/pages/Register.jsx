@@ -69,7 +69,14 @@ function Register() {
       setError(
         getApiErrorMessage(
           err,
-          'No pudimos crear tu cuenta. Si ya estabas registrada, probá iniciar sesión.'
+          'No pudimos crear tu cuenta. Si ya estabas registrada, probá iniciar sesión.',
+          {
+            byStatus: {
+              409: 'Ya existe una cuenta con ese email o teléfono. Probá iniciar sesión.',
+              400: 'Revisá los datos del formulario; algún campo no es válido.',
+              429: 'Demasiados intentos de registro. Esperá unos minutos.',
+            },
+          }
         )
       );
     } finally {

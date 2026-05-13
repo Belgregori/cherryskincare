@@ -31,7 +31,16 @@ function AboutUs() {
       console.error(err);
       setStatus({
         type: 'error',
-        message: getApiErrorMessage(err, 'No se pudo enviar el mensaje. Probá nuevamente en unos minutos.'),
+        message: getApiErrorMessage(
+          err,
+          'No pudimos enviar tu mensaje. Probá de nuevo en unos minutos.',
+          {
+            byStatus: {
+              400: 'Revisá nombre, email y mensaje; algún dato no fue aceptado.',
+              429: 'Enviaste varios mensajes seguidos. Esperá un momento e intentá de nuevo.',
+            },
+          }
+        ),
       });
     }
   };

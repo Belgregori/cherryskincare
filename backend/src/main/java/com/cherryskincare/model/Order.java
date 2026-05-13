@@ -2,6 +2,9 @@ package com.cherryskincare.model;
 
 import jakarta.persistence.*;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -25,8 +28,9 @@ public class Order {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
+    /** VARCHAR en BD (Flyway); evita que Hibernate 6+ pida tipo ENUM nativo de MySQL. */
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(name = "status", nullable = false, length = 50)
     private OrderStatus status = OrderStatus.SIN_CONFIRMAR;
 
     @Column(name = "shipping_address", nullable = false)

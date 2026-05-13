@@ -35,7 +35,14 @@ function AdminLogin() {
       setError(
         getApiErrorMessage(
           err,
-          'No pudimos validar el acceso de administrador. Revisá email y contraseña.'
+          'No pudimos validar el acceso de administrador. Revisá email y contraseña.',
+          {
+            byStatus: {
+              401: 'Credenciales incorrectas o cuenta sin permisos de administrador.',
+              429: 'Demasiados intentos. Esperá unos minutos.',
+              503: 'El servicio no está disponible. Probá más tarde.',
+            },
+          }
         )
       );
     } finally {

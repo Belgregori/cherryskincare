@@ -85,7 +85,9 @@ function Products() {
       
       setError(null);
     } catch (err) {
-      setError(getApiErrorMessage(err, 'Error al cargar los productos'));
+      setError(getApiErrorMessage(err, 'No pudimos cargar los productos.', {
+        byStatus: { 503: 'El listado no está disponible temporalmente.' },
+      }));
       console.error(err);
     } finally {
       setLoading(false);

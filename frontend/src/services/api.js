@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { secureGetItem } from '../utils/secureStorage';
 
 // URL base del API - configurable mediante variable de entorno
 // En desarrollo, usar proxy de Vite (ruta relativa)
@@ -203,6 +204,13 @@ api.interceptors.response.use(
 
     // Si es un error 401 y no es un intento de refresh
     if (error.response?.status === 401 && !originalRequest._retry) {
+      // Credenciales incorrectas en login: no limpiar sesión ni redirigir (dejar que la página muestre el error)
+      const reqUrl = String(originalRequest?.url || '');
+      const method = String(originalRequest?.method || '').toLowerCase();
+      if (method === 'post' && reqUrl.includes('auth/login')) {
+        return Promise.reject(error);
+      }
+
       if (isRefreshing) {
         // Si ya se está refrescando, esperar en la cola
         return new Promise((resolve, reject) => {
@@ -220,7 +228,7 @@ api.interceptors.response.use(
       originalRequest._retry = true;
       isRefreshing = true;
 
-      const refreshToken = localStorage.getItem('refreshToken');
+      const refreshToken = secureGetItem('refreshToken');
       
       if (refreshToken) {
         try {
@@ -238,31 +246,26 @@ api.interceptors.response.use(
           processQueue(refreshError, null);
           isRefreshing = false;
           
-          // Si el refresh falla, hacer logout
-          localStorage.removeItem('token');
-          localStorage.removeItem('refreshToken');
-          localStorage.removeItem('user');
+          const { authService } = await import('./authService');
+          await authService.logout();
           
-          // Redirigir según la ruta
           if (window.location.pathname.startsWith('/admin')) {
             window.location.href = '/admin/login';
           } else {
-            window.location.href = '/';
+            window.location.href = '/login';
           }
           
           return Promise.reject(refreshError);
         }
       } else {
-        // No hay refresh token, hacer logout
         isRefreshing = false;
-        localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('user');
+        const { authService } = await import('./authService');
+        await authService.logout();
         
         if (window.location.pathname.startsWith('/admin')) {
           window.location.href = '/admin/login';
         } else {
-          window.location.href = '/';
+          window.location.href = '/login';
         }
       }
     }
